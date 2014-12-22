@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -21,9 +22,6 @@
  * @copyright  2014 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-       
-require_once('./krumo/class.krumo.php');
-
 require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/local/sqlgenerator/locallib.php');
@@ -33,45 +31,109 @@ $PAGE->set_context(context_system::instance());
 
 global $DB;
 global $CFG;
-$component= optional_param('component', '', PARAM_PATH);
+$component = optional_param('component', '', PARAM_PATH);
 
-//admin_externalpage_setup('local_sqlgenerator', '', $component);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
-//redirect(new moodle_url('/local/sqlgenerator/'));
 if ($data = $mform->get_data()) {
- generate_sql($data->component,"component.sql");
+    generate_sql($data->component, "component.sql");
 }
 echo $OUTPUT->header();
 $mform->display();
 echo $OUTPUT->footer();
 
-function generate_sql($component,$outputfile){
-global $DB;
-global $CFG;
-$dbmanager=$DB->get_manager();
-$dbmanager->generator->foreign_keys=true;
-$xmldb_file = new xmldb_file("$CFG->libdir/db/install.xml");
-  if (!$xmldb_file->fileExists()) {
+function generate_sql($component, $outputfile) {
+    global $CFG;
+    global $DB;
+    $dbmanager = $DB->get_manager();
+    $dbmanager->generator->foreign_keys = true;
+
+    $root = "$CFG->dirroot/mod";
+    $plugins = get_folders($root);
+    $root= "$CFG->dirroot/blocks";
+    $plugins=array_merge($plugins,get_folders($root));
+    $root= "$CFG->dirroot/enrol";
+    $plugins=array_merge($plugins,get_folders($root));
+    $root= "$CFG->dirroot/repository";
+    $plugins=array_merge($plugins,get_folders($root));
+    $root= "$CFG->dirroot/mod/assign/submission";
+    $plugins=array_merge($plugins,get_folders($root));
+    $root= "$CFG->dirroot/mod/assign/feedback";
+    $plugins=array_merge($plugins,get_folders($root));
+    
+    $root= "$CFG->dirroot/grade/grading/form";
+    $plugins=array_merge($plugins,get_folders($root));
+    
+    
+    
+    
+    
+    $plugins=array_merge($plugins,array("$CFG->libdir"));
+
+    $plugins=getDirectoryTree();
+    //var_dump($plugins);
+    //exit();
+
+
+    $fh = fopen($outputfile, 'w') or die("can't open file");
+    foreach ($plugins as $plugin) {
+       // $plugin = $plugin . "/db/install.xml";
+        //print $plugin;
+        $xmldb_file = new xmldb_file($plugin);
+        if (!$xmldb_file->fileExists()) {
             throw new ddl_exception('ddlxmlfileerror', null, 'File does not exist');
         }
-$loaded = $xmldb_file->loadXMLStructure();
-$xmldb_structure = $xmldb_file->getStructure();
+        $loaded = $xmldb_file->loadXMLStructure();
+        $xmldb_structure = $xmldb_file->getStructure();
+        $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
+        foreach ($sqlarr as $sql) {
+            $sql = str_replace("CREATE TABLE", ";\r CREATE TABLE", $sql);
+            fwrite($fh, $sql);
+        }
+    }
 
-$sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
-
-$fh = fopen($outputfile, 'a') or die("can't open file");
-foreach ($sqlarr as $sql) {
-        $sql=str_replace("CREATE TABLE",";CREATE TABLE",$sql);
-        $sql=preg_replace("/ALTER TABLE(.*)COMMENT/"," COMMENT",$sql);
-        $sql=preg_replace("/CREATE UNIQUE INDEX(.*)\)/","",$sql);
-        $sql=preg_replace("/CREATE INDEX(.*)\)/","",$sql);
-        fwrite($fh, $sql); 
+    fclose($fh);
+    print "<p>Done </p>";
 }
-  fclose($fh);
-  print "<p>Done </p>";
 
+function get_folders($root) {
+    $plugins = array();
+    $handle = opendir($root);
+    while (false !== ($entry = readdir($handle))) {
+        $fullpath = $root . "/" . $entry;
+        if (is_dir($fullpath) && $entry != "." && $entry != "..") {
+             
+            if (file_exists($fullpath."/db/install.xml")){
+            $plugins[] = $fullpath;
+            //print $fullpath ."</br>";
+
+            }
+        }
+    }
+    return $plugins;
 }
+
+function getDirectoryTree($sort=0){
+    global $CFG;
+    $dir=$CFG->dirroot;
+
+    $items = glob($dir . '/*');
+    
+    for ($i = 0; $i < count($items); $i++) {
+        if (is_dir($items[$i])) {
+            $add = glob($items[$i] . '/*');
+            $items = array_merge($items, $add);
+        }
+    }
+    $installfiles=array();
+    foreach($items as $item){
+        if(preg_match("/install\.xml/",$item)){
+            $installfiles[]=$item;
+        }
+        
+    }
+   return $installfiles;
+} 
