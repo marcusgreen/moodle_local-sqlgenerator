@@ -39,9 +39,9 @@ class local_sqlgenerator_form extends moodleform {
         $mform = $this->_form;
 
         //$a = new stdClass();
-        $mform->addElement('text', 'component', get_string('component', 'local_sqlgenerator'), array('size' => '48'));
-        $mform->setDefault('component',"$CFG->libdir/db/install.xml");
-        $mform->setType('component', PARAM_PATH);
+        //$mform->addElement('text', 'component', get_string('component', 'local_sqlgenerator'), array('size' => '48'));
+        //$mform->setDefault('component',"$CFG->libdir/db/install.xml");
+        //$mform->setType('component', PARAM_PATH);
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
     }
 }
