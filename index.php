@@ -53,6 +53,11 @@ function generate_sql($component, $outputfile) {
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
 
+    /* This should cover all module types, i.e. blocks, enrol etc, if 
+     * I have missed any you should be able to add new ones in using this format
+     * Alternatively raise an issue in the github bugtracker and I will try
+     * to help out.
+     */
     $root = "$CFG->dirroot/mod";
     $plugins = get_folders($root);
     $root= "$CFG->dirroot/blocks";
@@ -92,6 +97,7 @@ function generate_sql($component, $outputfile) {
 }
 /** loops through all sub/folders looking for files called install.xml */
 function get_folders($root) {
+    return;
     $plugins = array();
     $handle = opendir($root);
     while (false !== ($entry = readdir($handle))) {
@@ -105,12 +111,11 @@ function get_folders($root) {
     return $plugins;
 }
 
+
 function getDirectoryTree($sort=0){
     global $CFG;
     $dir=$CFG->dirroot;
-
-    $items = glob($dir . '/*');
-    
+    $items = glob($dir . '/*');    
     for ($i = 0; $i < count($items); $i++) {
         if (is_dir($items[$i])) {
             $add = glob($items[$i] . '/*');
