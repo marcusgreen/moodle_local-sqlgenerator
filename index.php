@@ -53,11 +53,7 @@ function generate_sql($component, $outputfile) {
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
 
-    /* This should cover all module types, i.e. blocks, enrol etc, if 
-     * I have missed any you should be able to add new ones in using this format
-     * Alternatively raise an issue in the github bugtracker and I will try
-     * to help out.
-     */
+/*
     $root = "$CFG->dirroot/mod";
     $plugins = get_folders($root);
     $root= "$CFG->dirroot/blocks";
@@ -74,6 +70,8 @@ function generate_sql($component, $outputfile) {
     $plugins=array_merge($plugins,get_folders($root));
     
     $plugins=array_merge($plugins,array("$CFG->libdir"));
+ * */
+ 
     $plugins=getDirectoryTree();
  
     $fh = fopen($outputfile, 'w') or die("can't open file");
@@ -95,23 +93,10 @@ function generate_sql($component, $outputfile) {
     fclose($fh);
     print "<p>Done </p>";
 }
-/** loops through all sub/folders looking for files called install.xml */
-function get_folders($root) {
-    return;
-    $plugins = array();
-    $handle = opendir($root);
-    while (false !== ($entry = readdir($handle))) {
-        $fullpath = $root . "/" . $entry;
-        if (is_dir($fullpath) && $entry != "." && $entry != "..") {             
-            if (file_exists($fullpath."/db/install.xml")){
-            $plugins[] = $fullpath;
-            }
-        }
-    }
-    return $plugins;
-}
 
-
+/** Loop through all filders and get a list of all install.xml files 
+ * with full path
+ */
 function getDirectoryTree($sort=0){
     global $CFG;
     $dir=$CFG->dirroot;
