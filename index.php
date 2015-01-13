@@ -39,7 +39,9 @@ $PAGE->set_url('/admin/sqlgenerator.php');
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
-    generate_sql($data->component, "component.sql");
+    //generate_sql($data->component, "component.sql");
+    /*component.sql is the name of the output file with the sql statements */
+    generate_sql("placeholdercomponent","component.sql");
 }
 echo $OUTPUT->header();
 $mform->display();
@@ -62,26 +64,16 @@ function generate_sql($component, $outputfile) {
     $root= "$CFG->dirroot/mod/assign/submission";
     $plugins=array_merge($plugins,get_folders($root));
     $root= "$CFG->dirroot/mod/assign/feedback";
-    $plugins=array_merge($plugins,get_folders($root));
-    
+    $plugins=array_merge($plugins,get_folders($root));    
     $root= "$CFG->dirroot/grade/grading/form";
     $plugins=array_merge($plugins,get_folders($root));
     
-    
-    
-    
-    
     $plugins=array_merge($plugins,array("$CFG->libdir"));
-
     $plugins=getDirectoryTree();
-    //var_dump($plugins);
-    //exit();
-
-
+ 
     $fh = fopen($outputfile, 'w') or die("can't open file");
+    fwrite($fh,"/* Moodle version ". $CFG->version." Release ".$CFG->release ." SQL code */");
     foreach ($plugins as $plugin) {
-       // $plugin = $plugin . "/db/install.xml";
-        //print $plugin;
         $xmldb_file = new xmldb_file($plugin);
         if (!$xmldb_file->fileExists()) {
             throw new ddl_exception('ddlxmlfileerror', null, 'File does not exist');
@@ -98,18 +90,15 @@ function generate_sql($component, $outputfile) {
     fclose($fh);
     print "<p>Done </p>";
 }
-
+/** loops through all sub/folders looking for files called install.xml */
 function get_folders($root) {
     $plugins = array();
     $handle = opendir($root);
     while (false !== ($entry = readdir($handle))) {
         $fullpath = $root . "/" . $entry;
-        if (is_dir($fullpath) && $entry != "." && $entry != "..") {
-             
+        if (is_dir($fullpath) && $entry != "." && $entry != "..") {             
             if (file_exists($fullpath."/db/install.xml")){
             $plugins[] = $fullpath;
-            //print $fullpath ."</br>";
-
             }
         }
     }
