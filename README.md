@@ -11,4 +11,7 @@ reason for not running on a live system with real users.
 
 You may need to increase the max_execution_time  value in your php.ini. On a machine with 16GB of RAM and an i7 chip I put the value up to 360
 The SQL code is called component.sql and  output to the same folder as the code (i.e. moodle\local\sqlgenerator\
+To see diagrams generated from the output of this plugin see here
+http://www.examulator.com/er/
+
 
