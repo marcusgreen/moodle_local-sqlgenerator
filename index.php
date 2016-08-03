@@ -33,49 +33,42 @@ global $DB;
 global $CFG;
 $component = optional_param('component', '', PARAM_PATH);
 
-
 $PAGE->set_url('/admin/sqlgenerator.php');
 
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
     //generate_sql($data->component, "component.sql");
-    /*component.sql is the name of the output file with the sql statements */
-    generate_sql("placeholdercomponent","component.sql");
+    /* component.sql is the name of the output file with the sql statements */
+    generate_sql("placeholdercomponent", "component.sql");
 }
 echo $OUTPUT->header();
 $mform->display();
 echo $OUTPUT->footer();
 
+function get_field($key, $field) {
+//$key ='<KEY NAME="competency_modulecomp#competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT="" />';
+    $xml = simplexml_load_string($key);
+    if ($xml == null) {
+        print $field;
+        print $key;
+        exit();
+    }
+    $arr = $xml->attributes();
+    return $arr[$field];
+}
+
 function generate_sql($component, $outputfile) {
     global $CFG;
     global $DB;
+
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
+    $plugins = getDirectoryTree();
 
-/*
-    $root = "$CFG->dirroot/mod";
-    $plugins = get_folders($root);
-    $root= "$CFG->dirroot/blocks";
-    $plugins=array_merge($plugins,get_folders($root));
-    $root= "$CFG->dirroot/enrol";
-    $plugins=array_merge($plugins,get_folders($root));
-    $root= "$CFG->dirroot/repository";
-    $plugins=array_merge($plugins,get_folders($root));
-    $root= "$CFG->dirroot/mod/assign/submission";
-    $plugins=array_merge($plugins,get_folders($root));
-    $root= "$CFG->dirroot/mod/assign/feedback";
-    $plugins=array_merge($plugins,get_folders($root));    
-    $root= "$CFG->dirroot/grade/grading/form";
-    $plugins=array_merge($plugins,get_folders($root));
-    
-    $plugins=array_merge($plugins,array("$CFG->libdir"));
- * */
- 
-    $plugins=getDirectoryTree();
- 
     $fh = fopen($outputfile, 'w') or die("can't open file");
-    fwrite($fh,"/* Moodle version ". $CFG->version." Release ".$CFG->release ." SQL code */");
+    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */");
+    $keys = get_keys();
     foreach ($plugins as $plugin) {
         $xmldb_file = new xmldb_file($plugin);
         if (!$xmldb_file->fileExists()) {
@@ -86,6 +79,16 @@ function generate_sql($component, $outputfile) {
         $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
         foreach ($sqlarr as $sql) {
             $sql = str_replace("CREATE TABLE", ";\r CREATE TABLE", $sql);
+            $engineloc = strpos($sql, 'ENGINE = InnoDB');
+            $uptoengine = substr($sql, 0, $engineloc);
+            $lastparenloc = strrpos($uptoengine, ")");
+            $tablename = get_tablename($sql);
+            $key = find_key_for_table($tablename, $keys);
+            $keylen = strlen($key);
+            if ($keylen > 0) {
+                $keylen = strlen($key);
+                $sql = substr_replace($sql, ',' . $key, $lastparenloc, 0);
+            }
             fwrite($fh, $sql);
         }
     }
@@ -94,25 +97,62 @@ function generate_sql($component, $outputfile) {
     print "<p>Done </p>";
 }
 
+function find_key_for_table($tablename, $keys) {
+    foreach ($keys as $key) {
+        $keyname = get_field($key, "NAME");
+        $keytablename = (explode("_erd_", $keyname)[0]);
+        $field = get_field($key, 'FIELDS');
+        $reffield = get_field($key, "REFFIELDS");
+        $reftable = get_field($key, "REFTABLE");
+        if (trim($keytablename) === trim($tablename)) {
+            $foreignkey = "CONSTRAINT " . $keyname . " FOREIGN KEY(" . $field . ") REFERENCES " . $reftable . "(" . $reffield . ")";
+            return $foreignkey;
+        }
+    }
+    return "";
+}
+
+function get_keys() {
+    $fkeys = fopen('foreignkeys.txt', 'r') or ( "cant open foreignkey file");
+    $keys = array();
+    if ($fkeys) {
+        while (($line = fgets($fkeys)) !== false) {
+            $keys[] = $line;
+        }
+        fclose($fkeys);
+        return $keys;
+    } else {
+        // error opening the file.
+    }
+}
+
+function get_tablename($sql) {
+    $ctloc = strpos($sql, "CREATE TABLE");
+    $tablestart = $ctloc + 12;
+    $tableend = strpos($sql, '(');
+    $len = $tableend - $tablestart;
+    $tablename = substr($sql, $tablestart, $len);
+    return $tablename;
+}
+
 /** Loop through all filders and get a list of all install.xml files 
  * with full path
  */
-function getDirectoryTree($sort=0){
+function getDirectoryTree($sort = 0) {
     global $CFG;
-    $dir=$CFG->dirroot;
-    $items = glob($dir . '/*');    
+    $dir = $CFG->dirroot;
+    $items = glob($dir . '/*');
     for ($i = 0; $i < count($items); $i++) {
         if (is_dir($items[$i])) {
             $add = glob($items[$i] . '/*');
             $items = array_merge($items, $add);
         }
     }
-    $installfiles=array();
-    foreach($items as $item){
-        if(preg_match("/install\.xml/",$item)){
-            $installfiles[]=$item;
+    $installfiles = array();
+    foreach ($items as $item) {
+        if (preg_match("/install\.xml/", $item)) {
+            $installfiles[] = $item;
         }
-        
     }
-   return $installfiles;
-} 
+    return $installfiles;
+}
