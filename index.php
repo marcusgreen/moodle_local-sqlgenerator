@@ -104,6 +104,7 @@ function find_key_for_table($tablename, $keys) {
         $field = get_field($key, 'FIELDS');
         $reffield = get_field($key, "REFFIELDS");
         $reftable = get_field($key, "REFTABLE");
+        //$keyname = str_replace('#','_',$keyname);
         if (trim($keytablename) === trim($tablename)) {
             $foreignkey = "CONSTRAINT " . $keyname . " FOREIGN KEY(" . $field . ") REFERENCES " . $reftable . "(" . $reffield . ")";
             return $foreignkey;
@@ -113,7 +114,7 @@ function find_key_for_table($tablename, $keys) {
 }
 
 function get_keys() {
-    $fkeys = fopen('foreignkeys.txt', 'r') or ( "cant open foreignkey file");
+    $fkeys = fopen('morekeys.xml', 'r') or ( "cant open morekeys.xml file");
     $keys = array();
     if ($fkeys) {
         while (($line = fgets($fkeys)) !== false) {
