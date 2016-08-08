@@ -2,7 +2,7 @@ moodle_local-sqlgenerator
 =========================
 Marcus Green January 2015
 
-Generate sql statements from Moodle install to be used in generating ER diagrams. The foreignkeys.txt file is designed to contain any 
+Generate sql statements from Moodle install to be used in generating ER diagrams. The morekeys.xml file is designed to contain any 
 additional pk/fk relationships that do not appear in the code but you may consider are implied by the data. This uses the standard xml tags as defined by dbxml except it uses a convention whereby the first part of the name of the key contains the string _erd_ to indicate
 that the first part is the table name. So for a key named user_preferences_erd_user_id the code would work out that this belonged in the user_preferences table. 
 
