@@ -84,33 +84,41 @@ function generate_sql($component, $outputfile) {
             $lastparenloc = strrpos($uptoengine, ")");
             $tablename = get_tablename($sql);
             $key = find_key_for_table($tablename, $keys);
-            $keylen = strlen($key);
-            if ($keylen > 0) {
-                $keylen = strlen($key);
-                $sql = substr_replace($sql, ',' . $key, $lastparenloc, 0);
+            $keycount = count($key);
+            if ($keycount > 0) {
+                $keystring = "";
+                foreach ($key as $value) {
+                    $keystring.=$value;
+                }
+                $sql = substr_replace($sql, ',' . $keystring, $lastparenloc, 0);
             }
             fwrite($fh, $sql);
         }
     }
+
 
     fclose($fh);
     print "<p>Done </p>";
 }
 
 function find_key_for_table($tablename, $keys) {
+    $foreignkeys=array();
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
         $keytablename = (explode("_erd_", $keyname)[0]);
         $field = get_field($key, 'FIELDS');
         $reffield = get_field($key, "REFFIELDS");
         $reftable = get_field($key, "REFTABLE");
-        //$keyname = str_replace('#','_',$keyname);
         if (trim($keytablename) === trim($tablename)) {
-            $foreignkey = "CONSTRAINT " . $keyname . " FOREIGN KEY(" . $field . ") REFERENCES " . $reftable . "(" . $reffield . ")";
-            return $foreignkey;
+            $comma="";            
+            if(count($foreignkeys)>0){
+                $comma=",";
+            }
+            $foreignkeys[] = $comma."CONSTRAINT " . $keyname . " FOREIGN KEY(" . $field . ") REFERENCES " . $reftable . "(" . $reffield . ")";  
         }
     }
-    return "";
+    //var_dump($keys);
+    return $foreignkeys;
 }
 
 function get_keys() {
@@ -136,7 +144,7 @@ function get_tablename($sql) {
     return $tablename;
 }
 
-/** Loop through all filders and get a list of all install.xml files 
+/** Loop through all folders and get a list of all install.xml files 
  * with full path
  */
 function getDirectoryTree($sort = 0) {
