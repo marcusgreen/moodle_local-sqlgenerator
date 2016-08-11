@@ -41,3 +41,7 @@
 <KEY NAME="block_rss_client_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="block_recent_activity_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="block_community_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="forum_track_prefs_erd_forum_id" TYPE="foreign" FIELDS="userid" REFTABLE="forum" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="forum_read_erd_forum_id" TYPE="foreign" FIELDS="forumid" REFTABLE="forum" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="forum_read_erd_discussions_id" TYPE="foreign" FIELDS="discussionid" REFTABLE="forum_discussions" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="forum_read_erd_post_id" TYPE="foreign" FIELDS="postid" REFTABLE="forum_posts" REFFIELDS="id" COMMENT=""/>
