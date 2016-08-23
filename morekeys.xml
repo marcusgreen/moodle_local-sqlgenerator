@@ -46,3 +46,4 @@
 <KEY NAME="forum_read_erd_discussions_id" TYPE="foreign" FIELDS="discussionid" REFTABLE="forum_discussions" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="forum_read_erd_post_id" TYPE="foreign" FIELDS="postid" REFTABLE="forum_posts" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_completion_criteria_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="backup_courses_erd_course_id" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
