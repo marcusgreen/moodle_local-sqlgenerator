@@ -15,7 +15,7 @@
 <KEY NAME="competency_evidence_erd_competency_usercomp" TYPE="foreign" FIELDS="usercompetencyid" REFTABLE="competency_usercomp" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_modules_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_section_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="course_completion_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="course_completions_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_completion_aggr_metd_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_category_erd_course_id" TYPE="foreign" FIELDS="category" REFTABLE="course_categories" REFFIELDS="id" COMMENT="same table relationship"/>
 <KEY NAME="course_erd_category_id" TYPE="foreign" FIELDS="category" REFTABLE="course_categories" REFFIELDS="id" COMMENT="what category is this course in"/>
