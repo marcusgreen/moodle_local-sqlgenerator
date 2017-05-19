@@ -21,29 +21,24 @@
  * @copyright  2014 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/formslib.php');
 
-
 /**
- * Settings form for the code checker.
+ * Interactive form for the SQL Generator.
  *
  * @copyright  2014 Marcus Green
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_sqlgenerator_form extends moodleform {
+
     protected function definition() {
         global $CFG;
         $mform = $this->_form;
-
-        //$a = new stdClass();
-        //$mform->addElement('text', 'component', get_string('component', 'local_sqlgenerator'), array('size' => '48'));
-        //$mform->setDefault('component',"$CFG->libdir/db/install.xml");
-        //$mform->setType('component', PARAM_PATH);
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
+        $mform->addElement('submit', 'checkmorekeys', 'Check MoreKeys.xml');
+       // $mform->addElement('submit', 'writexml', 'Write XML');
     }
+
 }
-
-
