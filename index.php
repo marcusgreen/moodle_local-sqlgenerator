@@ -86,17 +86,31 @@ function write_xml(array $tablestowrite=array()) {
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
     $fh = fopen('table_xml.html', 'w') or die("can't open file table_xml.html");
+    $findex= fopen("pluginxml/index.htm", "w");
+    fwrite($findex,"<h3>dbmxl files for each plugin extracted from the install folder</h3>");
     fwrite($fh,"<pre>");
     foreach ($plugins as $plugin) {
-        //$xmldb_file = new xmldb_file($plugin);
         $contents = file_get_contents($plugin);
+        $xml = simplexml_load_string($contents);
+        $arr = $xml->attributes();
         fwrite($fh,"<hr/>");
         $folder=rtrim($plugin,"install.xml");
+        $folder=substr($folder,0,-4);
         $folder=str_replace($CFG->dirroot,'',$folder);
-        $contents ="<br/>".$folder."<br/>".htmlspecialchars($contents);
-        fwrite($fh,($contents));            
-    }   
-     fwrite($fh,"</pre>");
+        $contents ="<br/><p>".$folder."<p/><pre>".htmlspecialchars($contents);
+        $folder=substr($folder,1);
+        $folder=str_replace("/","_",$folder);
+        $folder=$folder.".html";
+        echo "creating:".$folder."</br>";
+        $pluginxml_file=fopen("pluginxml/".$folder, "w");
+        fwrite($findex,"<a href=".$folder.">".$folder."</a><br/>");
+        fwrite($pluginxml_file,$contents."</pre>");
+        fclose($pluginxml_file);        
+        fwrite($fh,($contents));
+    }  
+    
+    fwrite($fh,"</pre>");
+    fclose($findex);
     fclose($fh);
 }
 
@@ -242,8 +256,8 @@ function get_tablename($sql) {
 function getDirectoryTree($sort = 0) {
     global $CFG;
     $dir = $CFG->dirroot;
-    $items = glob($dir . '/*');
-    for ($i = 0; $i < count($items); $i++) {
+     $items = glob($dir . '/*');
+     for ($i = 0; $i < count($items); $i++) {
         if (is_dir($items[$i])) {
             $add = glob($items[$i] . '/*');
             $items = array_merge($items, $add);
