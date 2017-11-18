@@ -40,10 +40,7 @@ if ($data = $mform->get_data()) {
     /* component.sql is the name of the output file with the sql statements */
     if (isset($data->checkmorekeys)) {
         $plugin_tablenames = get_tablenames_from_plugins();
-        // error_log(json_encode($plugin_tablenames));
-        // exit();
         $keys = get_morekeys();
-
         print "<br/>SizeOf keys :" . sizeof($keys);
         print "<br/><br/><br/><br/>Rows in morekeys.xml with no matching plugin table";
         $nomatchcount = 0;
@@ -151,7 +148,6 @@ $mform->display();
 echo $OUTPUT->footer();
 
 function get_field($key, $field) {
-//$key ='<KEY NAME="competency_modulecomp#competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT="" />';
     $xml = simplexml_load_string($key);
     if ($xml <> null) {
         $arr = $xml->attributes();
@@ -168,10 +164,16 @@ function generate_sql($component, $outputfile) {
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
     $plugins = getDirectoryTree();
+    
 
     $fh = fopen($outputfile, 'w') or die("can't open file");
     fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */");
     $keys = get_morekeys();
+    $fhkeys = fopen('add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
+    fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */".PHP_EOL);
+    $keys = get_morekeys();
+    create_extra_fkeys($keys,$fhkeys);
+    fwrite($fhkeys, "/* End of Extra Foreign Keys */ ".PHP_EOL);
     foreach ($plugins as $plugin) {
         $xmldb_file = new xmldb_file($plugin);
         if (!$xmldb_file->fileExists()) {
@@ -179,6 +181,8 @@ function generate_sql($component, $outputfile) {
         }
         $loaded = $xmldb_file->loadXMLStructure();
         $xmldb_structure = $xmldb_file->getStructure();
+        $xmldb_tables = $xmldb_structure->getTables();
+        create_add_fkeys($dbmanager,$xmldb_tables,$fhkeys);
         $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
         foreach ($sqlarr as $sql) {
             $sql = str_replace("CREATE TABLE", ";\r CREATE TABLE", $sql);
@@ -187,6 +191,7 @@ function generate_sql($component, $outputfile) {
             $lastparenloc = strrpos($uptoengine, ")");
             $tablename = get_tablename($sql);
             $key = find_key_for_table($tablename, $keys);
+            
             $keycount = count($key);
             if ($keycount > 0) {
                 $keystring = "";
@@ -204,6 +209,39 @@ function generate_sql($component, $outputfile) {
     print "<p>Done </p>";
 }
 
+function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
+   
+    foreach ($xmldb_tables as $xmldb_table) {
+            $xmldb_keys = $xmldb_table->getKeys();
+            foreach ($xmldb_keys as $key) {
+                if ($key->getType() == XMLDB_KEY_FOREIGN) {      
+                    $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
+      $keytext = 'ALTER TABLE '.$xmldb_table->getName().' ADD FOREIGN KEY (mdl_'.$key->getName(). ') REFERENCES '.$key->getRefTable(). ' (mdl_'.$key->getRefFields()[0].')'.PHP_EOL;
+                    fwrite($fkeys,$keytext);
+                }
+            }
+        }
+}
+
+function create_extra_fkeys($keys,$fhkeys){
+    print "<br/>";
+    global $CFG;
+             
+    foreach ($keys as $key) {
+        $keyname = get_field($key, "NAME");
+        $keytablename = (explode("_erd_", $keyname)[0]);
+        $field = get_field($key, 'FIELDS');
+        $reffield = get_field($key, "REFFIELDS");
+        $reftable = get_field($key, "REFTABLE");
+        if ($keytablename > '') {
+            /*PHP_EOL == end of line */
+            $keytext = 'ALTER TABLE mdl_'.$keytablename.' ADD FOREIGN KEY ('.$field. ') REFERENCES mdl_'.$reftable. ' ('.$reffield.');'.PHP_EOL;
+            $foreignkeys[] = $keytext;
+            //print $keytext ."<br/>".PHP_EOL;
+            fwrite($fhkeys,$keytext);
+        }
+    }
+}
 function find_key_for_table($tablename, $keys) {
     $foreignkeys = array();
     foreach ($keys as $key) {
@@ -220,7 +258,6 @@ function find_key_for_table($tablename, $keys) {
             $foreignkeys[] = $comma . "CONSTRAINT " . $keyname . " FOREIGN KEY(" . $field . ") REFERENCES " . $reftable . "(" . $reffield . ")";
         }
     }
-    //var_dump($keys);
     return $foreignkeys;
 }
 

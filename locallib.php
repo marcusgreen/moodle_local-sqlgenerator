@@ -38,7 +38,7 @@ class local_sqlgenerator_form extends moodleform {
         $mform = $this->_form;
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
         $mform->addElement('submit', 'checkmorekeys', 'Check MoreKeys.xml');
-       // $mform->addElement('submit', 'writexml', 'Write XML');
+        $mform->addElement('submit', 'writexml', 'Write XML');
     }
 
 }
