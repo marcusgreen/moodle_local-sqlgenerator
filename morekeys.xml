@@ -1,4 +1,3 @@
-<KEY NAME="competency_modulecomp_erd_competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="competency_userevidencecomp_erd_competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="competency_plancomp_erd_competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="competency_usercompplan_erd_competency" TYPE="foreign" FIELDS="competencyid" REFTABLE="competency" REFFIELDS="id" COMMENT=""/>
