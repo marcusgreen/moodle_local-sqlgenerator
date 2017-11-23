@@ -190,7 +190,7 @@ function generate_sql($component, $outputfile) {
             $tablename = get_tablename($sql);
             $key = find_key_for_table($tablename, $keys);            
             $keycount = count($key);
-            if ($keycount > 0) {
+            if ($keycount > 0) { 
                 $keystring = "";
                 foreach ($key as $value) {
                     $keystring .= $value;
