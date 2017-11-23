@@ -25,7 +25,7 @@ require_once(__DIR__ . '/../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/local/sqlgenerator/locallib.php');
 $PAGE->set_context(context_system::instance());
-
+$prefix = $CFG->dbprefix;
 //$mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 
 global $DB;
@@ -127,8 +127,6 @@ function get_tablenames_from_plugins() {
             }
         }
     }
-    //var_dump($plugintables[52]);
-    //exit();
     return $plugintables;
 }
 
@@ -190,8 +188,7 @@ function generate_sql($component, $outputfile) {
             $uptoengine = substr($sql, 0, $engineloc);
             $lastparenloc = strrpos($uptoengine, ")");
             $tablename = get_tablename($sql);
-            $key = find_key_for_table($tablename, $keys);
-            
+            $key = find_key_for_table($tablename, $keys);            
             $keycount = count($key);
             if ($keycount > 0) {
                 $keystring = "";
@@ -203,20 +200,18 @@ function generate_sql($component, $outputfile) {
             fwrite($fh, $sql);
         }
     }
-
-
     fclose($fh);
     print "<p>Done </p>";
 }
 
 function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
-   
+   global $CFG;
     foreach ($xmldb_tables as $xmldb_table) {
             $xmldb_keys = $xmldb_table->getKeys();
             foreach ($xmldb_keys as $key) {
-                if ($key->getType() == XMLDB_KEY_FOREIGN) {      
+                if ($key->getType() == XMLDB_KEY_FOREIGN) { 
                     $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
-      $keytext = 'ALTER TABLE '.$xmldb_table->getName().' ADD FOREIGN KEY (mdl_'.$key->getName(). ') REFERENCES '.$key->getRefTable(). ' (mdl_'.$key->getRefFields()[0].')'.PHP_EOL;
+      $keytext = 'ALTER TABLE '.$CFG->dbprefix.$xmldb_table->getName().' ADD FOREIGN KEY ('.$key->getFields()[0]. ') REFERENCES '.$dbprefix.$key->getRefTable(). ' ('.$key->getRefFields()[0].');'.PHP_EOL;
                     fwrite($fkeys,$keytext);
                 }
             }
@@ -225,8 +220,10 @@ function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
 
 function create_extra_fkeys($keys,$fhkeys){
     print "<br/>";
-    global $CFG;
-             
+    global $CFG,$DB;
+    $sql = "update ".$dbprefix ."course_categories set parent=? where id=?";
+    $DB->execute($sql,array(1,1));        
+            
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
         $keytablename = (explode("_erd_", $keyname)[0]);
@@ -235,9 +232,8 @@ function create_extra_fkeys($keys,$fhkeys){
         $reftable = get_field($key, "REFTABLE");
         if ($keytablename > '') {
             /*PHP_EOL == end of line */
-            $keytext = 'ALTER TABLE mdl_'.$keytablename.' ADD FOREIGN KEY ('.$field. ') REFERENCES mdl_'.$reftable. ' ('.$reffield.');'.PHP_EOL;
+            $keytext = 'ALTER TABLE '.$CFG->dbprefix.$keytablename.' ADD FOREIGN KEY ('.$field. ') REFERENCES '.$dbprefix.$reftable. ' ('.$reffield.');'.PHP_EOL;
             $foreignkeys[] = $keytext;
-            //print $keytext ."<br/>".PHP_EOL;
             fwrite($fhkeys,$keytext);
         }
     }
