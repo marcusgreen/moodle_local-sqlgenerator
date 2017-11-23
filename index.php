@@ -211,7 +211,7 @@ function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
             foreach ($xmldb_keys as $key) {
                 if ($key->getType() == XMLDB_KEY_FOREIGN) { 
                     $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
-      $keytext = 'ALTER TABLE '.$CFG->dbprefix.$xmldb_table->getName().' ADD FOREIGN KEY ('.$key->getFields()[0]. ') REFERENCES '.$dbprefix.$key->getRefTable(). ' ('.$key->getRefFields()[0].');'.PHP_EOL;
+                    $keytext = 'ALTER TABLE '.$CFG->dbprefix.$xmldb_table->getName().' ADD FOREIGN KEY ('.$key->getFields()[0]. ') REFERENCES '.$dbprefix.$key->getRefTable(). ' ('.$key->getRefFields()[0].');'.PHP_EOL;
                     fwrite($fkeys,$keytext);
                 }
             }
