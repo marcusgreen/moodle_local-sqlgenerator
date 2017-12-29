@@ -69,7 +69,7 @@ if ($data = $mform->get_data()) {
     }
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
-        generate_sql("placeholdercomponent", "create_tables.sql");
+        generate_sql("placeholdercomponent", "output/create_tables.sql");
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -82,8 +82,8 @@ function write_xml(array $tablestowrite=array()) {
     global $DB, $CFG;
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
-    $fh = fopen('table_xml.html', 'w') or die("can't open file table_xml.html");
-    $findex= fopen("pluginxml/index.htm", "w");
+    $fh = fopen('output/table_xml.html', 'w') or die("can't open file table_xml.html");
+    $findex= fopen("output/pluginxml/index.htm", "w");
     fwrite($findex,"<h3>dbmxl files for each plugin extracted from the install folder</h3>");
     fwrite($fh,"<pre>");
     foreach ($plugins as $plugin) {
@@ -99,7 +99,7 @@ function write_xml(array $tablestowrite=array()) {
         $folder=str_replace("/","_",$folder);
         $folder=$folder.".html";
         echo "creating:".$folder."</br>";
-        $pluginxml_file=fopen("pluginxml/".$folder, "w");
+        $pluginxml_file=fopen("output/pluginxml/".$folder, "w");
         fwrite($findex,"<a href=".$folder.">".$folder."</a><br/>");
         fwrite($pluginxml_file,$contents."</pre>");
         fclose($pluginxml_file);        
@@ -167,7 +167,7 @@ function generate_sql($component, $outputfile) {
     $fh = fopen($outputfile, 'w') or die("can't open file");
     fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */");
     $keys = get_morekeys();
-    $fhkeys = fopen('add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
+    $fhkeys = fopen('output/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
     fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */".PHP_EOL);
     $keys = get_morekeys();
     create_extra_fkeys($keys,$fhkeys);
