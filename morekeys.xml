@@ -51,4 +51,6 @@
 <KEY NAME="user_info_data_erd_user_id" TYPE="foreign" FIELDS="fieldid" REFTABLE="user_info_field" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="user_info_field" TYPE="foreign" FIELDS="categoryid" REFTABLE="user_info_category" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="glossary_formats_erd_name" TYPE="foreign" FIELDS="name" REFTABLE="glossary" REFFIELDS="introformat" COMMENT=""/>
+<KEY NAME="wiki_synonyms_erd_subwikiid" TYPE="foreign" FIELDS="subwikiid" REFTABLE="wiki_subwikis" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="wiki_synonyms_erd_pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="wiki_pages" REFFIELDS="id" COMMENT=""/>
 
