@@ -53,4 +53,3 @@
 <KEY NAME="glossary_formats_erd_name" TYPE="foreign" FIELDS="name" REFTABLE="glossary" REFFIELDS="introformat" COMMENT=""/>
 <KEY NAME="wiki_synonyms_erd_subwikiid" TYPE="foreign" FIELDS="subwikiid" REFTABLE="wiki_subwikis" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="wiki_synonyms_erd_pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="wiki_pages" REFFIELDS="id" COMMENT=""/>
-
