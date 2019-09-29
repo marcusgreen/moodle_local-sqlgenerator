@@ -27,3 +27,7 @@
 $string['component']  = 'Component';
 $string['generate']   = 'Generate';
 $string['pluginname'] = 'SQL Generator';
+$string['pluginfolder']   = 'Plugin folder';
+$string['pluginfolder_help'] = 'Leave blank for all plugins';
+
+

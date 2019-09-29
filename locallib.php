@@ -36,6 +36,9 @@ class local_sqlgenerator_form extends moodleform {
     protected function definition() {
         global $CFG;
         $mform = $this->_form;
+        $mform->addElement('text', 'pluginfolder', get_string('pluginfolder', 'local_sqlgenerator'));
+        $mform->addHelpButton('pluginfolder', 'pluginfolder', 'local_sqlgenerator');
+        $mform->setType('pluginfolder', PARAM_TEXT);
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
         $mform->addElement('submit', 'checkmorekeys', 'Check MoreKeys.xml');
         $mform->addElement('submit', 'writexml', 'Write XML');
