@@ -35,6 +35,8 @@ $PAGE->set_url('/admin/sqlgenerator.php');
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
+    $pluginfolder  = $data->pluginfolder ?? '';
+
     /* component.sql is the name of the output file with the sql statements */
     if (isset($data->checkmorekeys)) {
         $plugin_tablenames = get_tablenames_from_plugins();
@@ -67,7 +69,7 @@ if ($data = $mform->get_data()) {
     }
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
-        generate_sql("placeholdercomponent", "output/create_tables.sql");
+        generate_sql("placeholdercomponent", "output/create_tables.sql",$pluginfolder);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -153,13 +155,18 @@ function get_field($key, $field) {
     }
 }
 
-function generate_sql($component, $outputfile) {
+function generate_sql($component, $outputfile,$pluginfolder) {
     global $CFG;
     global $DB;
 
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
-    $plugins = getDirectoryTree();
+    $plugins = [];
+    if ($pluginfolder === "") {
+        $plugins = getDirectoryTree();
+    } else{
+        $plugins[] = $CFG->dirroot . '/' . $pluginfolder . '/db/install.xml';
+    }
     
 
     $fh = fopen($outputfile, 'w') or die("can't open file");
