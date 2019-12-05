@@ -102,10 +102,10 @@ function write_xml(array $tablestowrite=array()) {
         $pluginxml_file=fopen("output/pluginxml/".$folder, "w");
         fwrite($findex,"<a href=".$folder.">".$folder."</a><br/>");
         fwrite($pluginxml_file,$contents."</pre>");
-        fclose($pluginxml_file);        
+        fclose($pluginxml_file);
         fwrite($fh,($contents));
-    }  
-    
+    }
+
     fwrite($fh,"</pre>");
     fclose($findex);
     fclose($fh);
@@ -167,7 +167,7 @@ function generate_sql($component, $outputfile,$pluginfolder) {
     } else{
         $plugins[] = $CFG->dirroot . '/' . $pluginfolder . '/db/install.xml';
     }
-    
+
 
     $fh = fopen($outputfile, 'w') or die("can't open file");
     fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */");
@@ -193,9 +193,9 @@ function generate_sql($component, $outputfile,$pluginfolder) {
             $uptoengine = substr($sql, 0, $engineloc);
             $lastparenloc = strrpos($uptoengine, ")");
             $tablename = get_tablename($sql);
-            $key = find_key_for_table($tablename, $keys);            
+            $key = find_key_for_table($tablename, $keys);
             $keycount = count($key);
-            if ($keycount > 0) { 
+            if ($keycount > 0) {
                 $keystring = "";
                 foreach ($key as $value) {
                     $keystring .= $value;
@@ -206,7 +206,7 @@ function generate_sql($component, $outputfile,$pluginfolder) {
         }
     }
     fclose($fh);
-    print "<p>Done </p>";
+    \core\notification::add('Complete', \core\notification::SUCCESS);
 }
 
 function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
@@ -214,7 +214,7 @@ function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
     foreach ($xmldb_tables as $xmldb_table) {
             $xmldb_keys = $xmldb_table->getKeys();
             foreach ($xmldb_keys as $key) {
-                if ($key->getType() == XMLDB_KEY_FOREIGN) { 
+                if ($key->getType() == XMLDB_KEY_FOREIGN) {
                     $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
                     $keytext = 'ALTER TABLE '.$CFG->prefix.$xmldb_table->getName().' ADD FOREIGN KEY ('.$key->getFields()[0]. ') REFERENCES '.$CFG->prefix.$key->getRefTable(). ' ('.$key->getRefFields()[0].');'.PHP_EOL;
                     fwrite($fkeys,$keytext);
@@ -227,8 +227,8 @@ function create_extra_fkeys($keys,$fhkeys){
     print "<br/>";
     global $CFG,$DB;
     $sql = "update ".$CFG->prefix ."course_categories set parent=? where id=?";
-    $DB->execute($sql,array(1,1));        
-            
+    $DB->execute($sql,array(1,1));
+
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
         $keytablename = (explode("_erd_", $keyname)[0]);
@@ -288,7 +288,7 @@ function get_tablename($sql) {
     return trim($tablename);
 }
 
-/** Loop through all folders and get a list of all install.xml files 
+/** Loop through all folders and get a list of all install.xml files
  * with full path
  */
 function getDirectoryTree($sort = 0) {
