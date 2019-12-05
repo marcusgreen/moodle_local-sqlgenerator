@@ -1,6 +1,6 @@
 moodle_local-sqlgenerator
 =========================
-Marcus Green January 2015
+Marcus Green Dec 2019
 
 Generate sql CREATE TABLE statements that will install an instance of Moodle. A standard Moodle installation
 will discard all foreign key relationship and field comments. This preserves that information. The resulting
