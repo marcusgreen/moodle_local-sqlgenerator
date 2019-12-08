@@ -112,7 +112,7 @@ function write_xml(array $tablestowrite=array()) {
 }
 
 function get_tablenames_from_plugins() {
-    global $DB, $CFG;
+    global $DB;
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
     $tablecount = 0;
@@ -135,7 +135,7 @@ function get_sqlarr($plugin, $dbmanager) {
     if (!$xmldb_file->fileExists()) {
         throw new ddl_exception('ddlxmlfileerror', null, 'File does not exist');
     }
-    $loaded = $xmldb_file->loadXMLStructure();
+    $xmldb_file->loadXMLStructure();
     $xmldb_structure = $xmldb_file->getStructure();
     $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
     return $sqlarr;
@@ -170,7 +170,9 @@ function generate_sql($component, $outputfile,$pluginfolder) {
 
 
     $fh = fopen($outputfile, 'w') or die("can't open file");
-    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */");
+    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */".PHP_EOL);
+    /* This allows tables to created with foreign keys */
+    fwrite($fh, 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL);
     $keys = get_morekeys();
     $fhkeys = fopen('output/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
     fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */".PHP_EOL);
@@ -182,13 +184,13 @@ function generate_sql($component, $outputfile,$pluginfolder) {
         if (!$xmldb_file->fileExists()) {
             throw new ddl_exception('ddlxmlfileerror', null, 'File does not exist');
         }
-        $loaded = $xmldb_file->loadXMLStructure();
+        $xmldb_file->loadXMLStructure();
         $xmldb_structure = $xmldb_file->getStructure();
         $xmldb_tables = $xmldb_structure->getTables();
         create_add_fkeys($dbmanager,$xmldb_tables,$fhkeys);
         $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
         foreach ($sqlarr as $sql) {
-            $sql = str_replace("CREATE TABLE", ";\r CREATE TABLE", $sql);
+            $sql = str_replace("CREATE TABLE", ";".PHP_EOL."CREATE TABLE", $sql);
             $engineloc = strpos($sql, 'ENGINE = InnoDB');
             $uptoengine = substr($sql, 0, $engineloc);
             $lastparenloc = strrpos($uptoengine, ")");
@@ -238,7 +240,6 @@ function create_extra_fkeys($keys,$fhkeys){
         if ($keytablename > '') {
             /*PHP_EOL == end of line */
             $keytext = 'ALTER TABLE '.$CFG->prefix.$keytablename.' ADD FOREIGN KEY ('.$field. ') REFERENCES '.$CFG->prefix.$reftable. ' ('.$reffield.');'.PHP_EOL;
-            $foreignkeys[] = $keytext;
             fwrite($fhkeys,$keytext);
         }
     }
@@ -277,8 +278,7 @@ function get_morekeys() {
 }
 
 function get_tablename($sql) {
-    global $CFG;
-    $ct = "CREATE TABLE";
+    $ct = PHP_EOL."CREATE TABLE";
     /* start point of CREATE TABLE */
     $ctloc = strpos($sql, $ct);
     $tablestart = $ctloc + strlen($ct);
