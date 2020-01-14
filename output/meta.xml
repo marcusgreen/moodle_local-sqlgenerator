@@ -1,0 +1,33 @@
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+    <comments>The Moodle Database is Complex</comments>
+    <tables>
+        <table name="user" comments="One record for each person, there are no gender or age fields">
+            <column name="accountId" comments="Column comment"/>
+        </table>
+        <table name="glossary" comments="">
+            <column name="displayformat" type="text">
+                <foreignKey table="glossary_formats" column="name" />
+            </column>
+        </table>
+        <table name="resource_old" comments="">
+            <column name="course" type="int">
+                <foreignKey table="course" column="id" />
+            </column>
+        </table>
+            <table name="mnet_sso_access_control" comments="">
+            <column name="username" type="text">
+                <foreignKey table="user" column="username" />
+            </column>
+        </table>
+        <table name="assignfeedback_editpdf_queue" comments="">
+            <column name="submissionid" type="int">
+                <foreignKey table="assign_submission" column="id" />
+            </column>
+        </table>
+        <table name="repository_instance_config" comments="">
+            <column name="instanceid" type="int">
+                <foreignKey table="repository_instance" column="id" />
+            </column>
+        </table>
+    </tables>
+</schemaMeta>
