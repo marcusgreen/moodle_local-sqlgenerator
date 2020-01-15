@@ -21,10 +21,12 @@
 <KEY NAME="course_completion_crit_compl_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_categories_erd_course_id" TYPE="foreign" FIELDS="parent" REFTABLE="course_categories" REFFIELDS="id" COMMENT="same table relationship"/>
 <KEY NAME="course_erd_category_id" TYPE="foreign" FIELDS="category" REFTABLE="course_categories" REFFIELDS="id" COMMENT="what category is this course in"/>
+<KEY NAME="course_modules_completion_erd_course_modules" TYPE="foreign" FIELDS="coursemoduleid" REFTABLE="course_modules" REFFIELDS="id" COMMENT="completion status of course module instance"/>
 <KEY NAME="user_preferences_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="book_chapters_erd_book_id" TYPE="foreign" FIELDS="bookid" REFTABLE="book" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="enrol_paypal_erd_course_id" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="forum_read_erd_forum_id" TYPE="foreign" FIELDS="forumid" REFTABLE="forum" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="grade_letters_erd_context" TYPE="foreign" FIELDS="contextid" REFTABLE="context" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="folder_erd_courseid" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="imscp_erd_courseid" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="label_erd_courseid" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
@@ -32,13 +34,11 @@
 <KEY NAME="lti_erd_lti_types_id" TYPE="foreign" FIELDS="typeid" REFTABLE="lti_types" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="lti_submission_erd_lti_id" TYPE="foreign" FIELDS="ltiid" REFTABLE="lti" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="log_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="tool_cohort_roles_erd_lti_id" TYPE="foreign" FIELDS="cohortid" REFTABLE="cohort" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="question_statistics_erd_question_id" TYPE="foreign" FIELDS="questionid" REFTABLE="question" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="user_lastaccess_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="user_info_data_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="mnet_service2rpc_erd_mnet_serviceid" TYPE="foreign" FIELDS="serviceid" REFTABLE="mnet_service" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="message_contacts_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="message_working_erd_user_id" TYPE="foreign" FIELDS="unreadmessageid" REFTABLE="message" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="message_working_erd_message_processors_id" TYPE="foreign" FIELDS="processorid" REFTABLE="message_processors" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="message_read_erd_from_user_id" TYPE="foreign" FIELDS="useridfrom" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="message_popup_erd_message_id" TYPE="foreign" FIELDS="messageid" REFTABLE="message" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="my_pages_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
@@ -48,15 +48,16 @@
 <KEY NAME="resource_erd_courseid" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="block_instances_erd_block_name" TYPE="foreign" FIELDS="blockname" REFTABLE="block" REFFIELDS="name" COMMENT=""/>
 <KEY NAME="block_recent_activity_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="block_community_erd_user_id" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="forum_track_prefs_erd_forum_id" TYPE="foreign" FIELDS="userid" REFTABLE="forum" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="forum_read_erd_discussions_id" TYPE="foreign" FIELDS="discussionid" REFTABLE="forum_discussions" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="forum_read_erd_post_id" TYPE="foreign" FIELDS="postid" REFTABLE="forum_posts" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="course_completion_criteria_erd_course_id" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="tool_cohortroles_erd_cohort" TYPE="foreign" FIELDS="cohortid" REFTABLE="cohort" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="user_info_field" TYPE="foreign" FIELDS="categoryid" REFTABLE="user_info_category" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="user_info_data_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="mdl_user_preferences_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
-<KEY NAME="mdl_user_lastaccess_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="user_preferences_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="user_lastaccess_erd_userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id" COMMENT=""/>
+<KEY NAME="repository_instance_config_erd_repository_instance" TYPE="foreign" FIELDS="instanceid" REFTABLE="repository_instances" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="url_erd_courseid" TYPE="foreign" FIELDS="course" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="wiki_synonyms_erd_subwikiid" TYPE="foreign" FIELDS="subwikiid" REFTABLE="wiki_subwikis" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="wiki_synonyms_erd_pageid" TYPE="foreign" FIELDS="pageid" REFTABLE="wiki_pages" REFFIELDS="id" COMMENT=""/>
@@ -70,7 +71,3 @@
 <KEY NAME="stats_user_weekly_erd_courseid" TYPE="foreign" FIELDS="courseid" REFTABLE="course" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="workshopform_rubric_erd_config_workshopid" TYPE="foreign" FIELDS="workshopid" REFTABLE="workshop" REFFIELDS="id" COMMENT=""/>
 <KEY NAME="workshopform_rubric_config_erd_workshopid" TYPE="foreign" FIELDS="workshopid" REFTABLE="workshop" REFFIELDS="id" COMMENT=""/>
-
-
-
-
