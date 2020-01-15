@@ -26,7 +26,7 @@
         </table>
         <table name="repository_instance_config" comments="">
             <column name="instanceid" type="int">
-                <foreignKey table="repository_instance" column="id" />
+                <foreignKey table="repository_instances" column="id" />
             </column>
         </table>
     </tables>
