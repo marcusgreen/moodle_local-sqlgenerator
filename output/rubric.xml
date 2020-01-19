@@ -1,0 +1,15 @@
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+    <comments>The Moodle Rubric advanced grading method</comments>
+    <tables>
+        <table name="grading_instances" comments="">
+            <column name="itemid" type="int" comment="">
+                 <foreignKey table="assign_grades" column="id" />
+            </column>
+        </table>
+         <table name="course_modules" comments="">
+            <column name="instanceid" type="int" comment="">
+                 <foreignKey table="assign" column="id" />
+            </column>
+        </table>
+    </tables>
+</schemaMeta>
