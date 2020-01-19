@@ -1,0 +1,1 @@
+java -jar schemaspy-6.1.0.jar -desc='Rubric Advanced grading method' -meta=rubric.xml  -i "(course|course_modules|assign|context|grading_areas|grading_definitions|gradingform_rubric_criteria|gradingform_rubric_levels|grading_instances|assign_grades|user|gradingform_rubric_fillings|assign_submission)" -o rubric
