@@ -6,6 +6,9 @@ Generate sql statements from Moodle install to be used in generating ER diagrams
 additional pk/fk relationships that do not appear in the code but you may consider are implied by the data. This uses the standard xml tags as defined by dbxml except it uses a convention whereby the first part of the name of the key contains the string _erd_ to indicate
 that the first part is the table name. So for a key named user_preferences_erd_user_id the code would work out that this belonged in the user_preferences table. 
 
+Read more about this plugin here
+https://github.com/marcusgreen/moodle_local-sqlgenerator/wiki
+
 The code only looks at the install files it does not interrogate the tables installs. I have done no checking
 for security issues at all so I recommend only running it on Moodle test installs. It loops through your source directories
 and so may have a significant performance impact (though probably only for a minute or so), so that's another
