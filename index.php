@@ -169,7 +169,7 @@ function generate_sql($component, $outputfile,$pluginfolder) {
     }
 
 
-    $fh = fopen($outputfile, 'w') or die("can't open file");
+    $fh = fopen($outputfile, 'w') or die("can't open file:".$outputfile);
     fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */".PHP_EOL);
     /* This allows tables to created with foreign keys */
     fwrite($fh, 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL);
