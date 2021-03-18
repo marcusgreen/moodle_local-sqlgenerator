@@ -1,33 +1,33 @@
-/* Moodle version 2020110902 Release 3.10.2 (Build: 20210308) SQL code */
+/* Moodle version 2020061504.06 Release 3.9.4+ (Build: 20210226) SQL code */
 SET FOREIGN_KEY_CHECKS=0;
 ;
 CREATE TABLE questionnaire (
     id BIGINT(10) NOT NULL auto_increment,
-    course BIGINT(10) NOT NULL DEFAULT 0,
-    name VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
-    intro LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
-    introformat SMALLINT(4) NOT NULL DEFAULT 0,
-    qtype BIGINT(10) NOT NULL DEFAULT 0,
-    respondenttype VARCHAR(9) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'fullname',
-    resp_eligible VARCHAR(8) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'all',
-    resp_view TINYINT(2) NOT NULL DEFAULT 0,
-    notifications TINYINT(1) NOT NULL DEFAULT 0,
-    opendate BIGINT(10) NOT NULL DEFAULT 0,
-    closedate BIGINT(10) NOT NULL DEFAULT 0,
-    resume TINYINT(2) NOT NULL DEFAULT 0,
-    navigate TINYINT(2) NOT NULL DEFAULT 0,
-    grade BIGINT(10) NOT NULL DEFAULT 0,
-    sid BIGINT(10) NOT NULL DEFAULT 0,
-    timemodified BIGINT(10) NOT NULL DEFAULT 0,
-    completionsubmit TINYINT(1) NOT NULL DEFAULT 0,
-    autonum TINYINT(1) NOT NULL DEFAULT 3,
-    progressbar TINYINT(1) NOT NULL DEFAULT 0,
+    course BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Id of course",
+    name VARCHAR(255) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''   COMMENT "Name for questionnaire.",
+    intro LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL   COMMENT "Description text.",
+    introformat SMALLINT(4) NOT NULL DEFAULT 0   COMMENT "text format of intro field",
+    qtype BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Questionnaire type code.",
+    respondenttype VARCHAR(9) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'fullname'   COMMENT "Eligible respondents",
+    resp_eligible VARCHAR(8) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'all'   COMMENT "Eligible respondents.",
+    resp_view TINYINT(2) NOT NULL DEFAULT 0   COMMENT "Questionnaire viewed?",
+    notifications TINYINT(1) NOT NULL DEFAULT 0   COMMENT "Send submission notifications.",
+    opendate BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Timestamp to open access",
+    closedate BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Timestamp to close access on",
+    resume TINYINT(2) NOT NULL DEFAULT 0   COMMENT "Questionnaire can be saved and resumed.",
+    navigate TINYINT(2) NOT NULL DEFAULT 0   COMMENT "Questionnaire can have page branching.",
+    grade BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Assign a grade to be received on submission.",
+    sid BIGINT(10) NOT NULL DEFAULT 0   COMMENT "The id entry in the questionnaire_survey field.",
+    timemodified BIGINT(10) NOT NULL DEFAULT 0   COMMENT "The timestamp record last modified.",
+    completionsubmit TINYINT(1) NOT NULL DEFAULT 0   COMMENT "Questionnaire marked as 'complete' when submitted.",
+    autonum TINYINT(1) NOT NULL DEFAULT 3   COMMENT "option for auto numbering questions and pages (both selected by default)",
+    progressbar TINYINT(1) NOT NULL DEFAULT 0   COMMENT "Display a progress bar at top of questionnaire.",
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT ques_sid2_fk FOREIGN KEY (sid) REFERENCES questionnaire_survey (id),
 CONSTRAINT ques_cou2_fk FOREIGN KEY (course) REFERENCES course (id)
 , KEY ques_res2_ix (resp_view)
-, KEY ques_sid4_ix (sid)
-, KEY ques_cou4_ix (course)
+, KEY ques_sid2_ix (sid)
+, KEY ques_cou2_ix (course)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
@@ -53,7 +53,7 @@ CREATE TABLE questionnaire_survey (
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quessurv_cou2_fk FOREIGN KEY (courseid) REFERENCES course (id)
 , KEY quessurv_nam2_ix (name)
-, KEY quessurv_cou4_ix (courseid)
+, KEY quessurv_cou2_ix (courseid)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
@@ -70,7 +70,7 @@ CREATE TABLE questionnaire_question (
     content LONGTEXT COLLATE utf8mb4_unicode_ci NOT NULL,
     required VARCHAR(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'n',
     deleted VARCHAR(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'n',
-    extradata LONGTEXT COLLATE utf8mb4_unicode_ci,
+    extradata LONGTEXT COLLATE utf8mb4_unicode_ci   COMMENT "If a question needs more than the standard fields provided, use this field.",
 CONSTRAINT  PRIMARY KEY (id)
 , KEY quesques_surdel2_ix (surveyid, deleted)
 )
@@ -84,14 +84,14 @@ CREATE TABLE questionnaire_quest_choice (
     value LONGTEXT COLLATE utf8mb4_unicode_ci,
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quesqueschoi_que2_fk FOREIGN KEY (question_id) REFERENCES questionnaire_question (id)
-, KEY quesqueschoi_que4_ix (question_id)
+, KEY quesqueschoi_que2_ix (question_id)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
  COMMENT='questionnaire_quest_choice table retrofitted from MySQL';
 CREATE TABLE questionnaire_question_type (
     id BIGINT(10) NOT NULL auto_increment,
-    typeid BIGINT(10) NOT NULL DEFAULT 0,
+    typeid BIGINT(10) NOT NULL DEFAULT 0   COMMENT "The code for the type.",
     type VARCHAR(32) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
     has_choices VARCHAR(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'y',
     response_table VARCHAR(32) COLLATE utf8mb4_unicode_ci,
@@ -106,11 +106,11 @@ CREATE TABLE questionnaire_response (
     questionnaireid BIGINT(10) NOT NULL DEFAULT 0,
     submitted BIGINT(10) NOT NULL DEFAULT 0,
     complete VARCHAR(1) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'n',
-    grade BIGINT(10) NOT NULL DEFAULT 0,
+    grade BIGINT(10) NOT NULL DEFAULT 0   COMMENT "Grade awarded",
     userid BIGINT(10),
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quesresp_que2_fk FOREIGN KEY (questionnaireid) REFERENCES questionnaire (id)
-, KEY quesresp_que4_ix (questionnaireid)
+, KEY quesresp_que2_ix (questionnaireid)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
@@ -204,7 +204,7 @@ CREATE TABLE questionnaire_fb_sections (
     sectionheadingformat TINYINT(2) DEFAULT 1,
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quesfbsect_sur2_fk FOREIGN KEY (surveyid) REFERENCES questionnaire_survey (id)
-, KEY quesfbsect_sur4_ix (surveyid)
+, KEY quesfbsect_sur2_ix (surveyid)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
@@ -219,24 +219,24 @@ CREATE TABLE questionnaire_feedback (
     maxscore NUMERIC(10,5) DEFAULT 101.00000,
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quesfeed_sec2_fk FOREIGN KEY (sectionid) REFERENCES questionnaire_fb_sections (id)
-, KEY quesfeed_sec4_ix (sectionid)
+, KEY quesfeed_sec2_ix (sectionid)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed
  COMMENT='questionnaire_feedback table retrofitted from MySQL';
 CREATE TABLE questionnaire_dependency (
     id BIGINT(10) NOT NULL auto_increment,
-    questionid BIGINT(10) NOT NULL DEFAULT 0,
-    surveyid BIGINT(10) NOT NULL,
-    dependquestionid BIGINT(10) NOT NULL DEFAULT 0,
-    dependchoiceid BIGINT(10) NOT NULL DEFAULT 0,
+    questionid BIGINT(10) NOT NULL DEFAULT 0   COMMENT "ID of question with dependency.",
+    surveyid BIGINT(10) NOT NULL   COMMENT "ID of survey question contained in.",
+    dependquestionid BIGINT(10) NOT NULL DEFAULT 0   COMMENT "ID of question dependent on.",
+    dependchoiceid BIGINT(10) NOT NULL DEFAULT 0   COMMENT "ID of question choice dependent on.",
     dependlogic TINYINT(2) NOT NULL DEFAULT 0,
-    dependandor VARCHAR(4) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT '',
+    dependandor VARCHAR(4) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT ''   COMMENT "Mandatory or obligatory dependency",
 CONSTRAINT  PRIMARY KEY (id),
 CONSTRAINT quesdepe_que2_fk FOREIGN KEY (questionid) REFERENCES questionnaire_question (id),
 CONSTRAINT quesdepe_sur2_fk FOREIGN KEY (surveyid) REFERENCES questionnaire_survey (id)
-, KEY quesdepe_que4_ix (questionid)
-, KEY quesdepe_sur4_ix (surveyid)
+, KEY quesdepe_que2_ix (questionid)
+, KEY quesdepe_sur2_ix (surveyid)
 )
  ENGINE = InnoDB
  DEFAULT COLLATE = utf8mb4_unicode_ci ROW_FORMAT=Compressed

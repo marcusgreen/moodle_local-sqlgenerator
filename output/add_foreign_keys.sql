@@ -1,4 +1,4 @@
-/* Moodle version 2020110902 Release 3.10.2 (Build: 20210308) Add Foreign Keys code */
+/* Moodle version 2020061504.06 Release 3.9.4+ (Build: 20210226) Add Foreign Keys code */
 ALTER TABLE block_rss_client ADD FOREIGN KEY (userid) REFERENCES user (id);
 ALTER TABLE competency_userevidencecomp ADD FOREIGN KEY (competencyid) REFERENCES competency (id);
 ALTER TABLE competency_plancomp ADD FOREIGN KEY (competencyid) REFERENCES competency (id);
