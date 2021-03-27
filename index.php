@@ -35,7 +35,7 @@ $PAGE->set_url('/admin/sqlgenerator.php');
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
-    $pluginfolder  = $data->pluginfolder ?? '';
+    $pluginfolder = $data->pluginfolder ?? '';
 
     /* component.sql is the name of the output file with the sql statements */
     if (isset($data->checkmorekeys)) {
@@ -65,7 +65,7 @@ if ($data = $mform->get_data()) {
             }
         }
         print "<br/>NoMatchCount:" . $nomatchcount;
-        ;
+
     }
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
@@ -74,7 +74,7 @@ if ($data = $mform->get_data()) {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
-        generate_sql("placeholdercomponent", "output/".$sqlfile.".sql", $pluginfolder);
+        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -83,7 +83,7 @@ if ($data = $mform->get_data()) {
     }
 }
 
-function write_xml(array $tablestowrite=array()) {
+function write_xml(array $tablestowrite = array()) {
     global $DB, $CFG;
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
@@ -96,22 +96,22 @@ function write_xml(array $tablestowrite=array()) {
         $xml = simplexml_load_string($contents);
         $arr = $xml->attributes();
         fwrite($fh, "<hr/>");
-        $folder = rtrim($plugin,"install.xml");
-        $folder = substr($folder,0,-4);
-        $folder = str_replace($CFG->dirroot,'',$folder);
-        $contents = "<br/><p>".$folder."<p/><pre>".htmlspecialchars($contents);
-        $folder = substr($folder,1);
-        $folder = str_replace("/","_",$folder);
-        $folder = $folder.".html";
-        echo "creating:".$folder."</br>";
-        $pluginxml_file = fopen("output/pluginxml/".$folder, "w");
-        fwrite($findex, "<a href=".$folder.">".$folder."</a><br/>");
-        fwrite($pluginxml_file,$contents."</pre>");
+        $folder = rtrim($plugin, "install.xml");
+        $folder = substr($folder, 0, -4);
+        $folder = str_replace($CFG->dirroot, '', $folder);
+        $contents = "<br/><p>" . $folder . "<p/><pre>" . htmlspecialchars($contents);
+        $folder = substr($folder, 1);
+        $folder = str_replace("/", "_", $folder);
+        $folder = $folder . ".html";
+        echo "creating:" . $folder . "</br>";
+        $pluginxml_file = fopen("output/pluginxml/" . $folder, "w");
+        fwrite($findex, "<a href=" . $folder . ">" . $folder . "</a><br/>");
+        fwrite($pluginxml_file, $contents . "</pre>");
         fclose($pluginxml_file);
         fwrite($fh, ($contents));
     }
 
-    fwrite($fh,"</pre>");
+    fwrite($fh, "</pre>");
     fclose($findex);
     fclose($fh);
 }
@@ -152,7 +152,7 @@ echo $OUTPUT->footer();
 
 function get_field($key, $field) {
     $xml = simplexml_load_string($key);
-    if ($xml <> null) {
+    if ($xml != null) {
         $arr = $xml->attributes();
         return $arr[$field];
     } else {
@@ -168,21 +168,20 @@ function generate_sql($component, $outputfile, $pluginfolder) {
     $plugins = [];
     if ($pluginfolder === "") {
         $plugins = getDirectoryTree();
-    } else{
+    } else {
         $plugins[] = $CFG->dirroot . '/' . $pluginfolder . '/db/install.xml';
     }
 
-
-    $fh = fopen($outputfile, 'w') or die("can't open file:".$outputfile);
-    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */".PHP_EOL);
+    $fh = fopen($outputfile, 'w') or die("can't open file:" . $outputfile);
+    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL);
     /* This allows tables to created with foreign keys */
     fwrite($fh, 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL);
     $keys = get_morekeys();
     $fhkeys = fopen('output/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
-    fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */".PHP_EOL);
+    fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */" . PHP_EOL);
     $keys = get_morekeys();
-    create_extra_fkeys($keys,$fhkeys);
-    fwrite($fhkeys, "/* End of Extra Foreign Keys */ ".PHP_EOL);
+    create_extra_fkeys($keys, $fhkeys);
+    fwrite($fhkeys, "/* End of Extra Foreign Keys */ " . PHP_EOL);
     foreach ($plugins as $plugin) {
         $xmldb_file = new xmldb_file($plugin);
         if (!$xmldb_file->fileExists()) {
@@ -191,10 +190,10 @@ function generate_sql($component, $outputfile, $pluginfolder) {
         $xmldb_file->loadXMLStructure();
         $xmldb_structure = $xmldb_file->getStructure();
         $xmldb_tables = $xmldb_structure->getTables();
-        create_add_fkeys($dbmanager,$xmldb_tables,$fhkeys);
+        create_add_fkeys($dbmanager, $xmldb_tables, $fhkeys);
         $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
         foreach ($sqlarr as $sql) {
-            $sql = str_replace("CREATE TABLE", ";".PHP_EOL."CREATE TABLE", $sql);
+            $sql = str_replace("CREATE TABLE", ";" . PHP_EOL . "CREATE TABLE", $sql);
             $engineloc = strpos($sql, 'ENGINE = InnoDB');
             $uptoengine = substr($sql, 0, $engineloc);
             $lastparenloc = strrpos($uptoengine, ")");
@@ -215,25 +214,25 @@ function generate_sql($component, $outputfile, $pluginfolder) {
     \core\notification::add('Complete', \core\notification::SUCCESS);
 }
 
-function create_add_fkeys($dbmanager,$xmldb_tables,$fkeys){
-   global $CFG;
+function create_add_fkeys($dbmanager, $xmldb_tables, $fkeys) {
+    global $CFG;
     foreach ($xmldb_tables as $xmldb_table) {
-            $xmldb_keys = $xmldb_table->getKeys();
-            foreach ($xmldb_keys as $key) {
-                if ($key->getType() == XMLDB_KEY_FOREIGN) {
-                    $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
-                    $keytext = 'ALTER TABLE '.$CFG->prefix.$xmldb_table->getName().' ADD FOREIGN KEY ('.$key->getFields()[0]. ') REFERENCES '.$CFG->prefix.$key->getRefTable(). ' ('.$key->getRefFields()[0].');'.PHP_EOL;
-                    fwrite($fkeys,$keytext);
-                }
+        $xmldb_keys = $xmldb_table->getKeys();
+        foreach ($xmldb_keys as $key) {
+            if ($key->getType() == XMLDB_KEY_FOREIGN) {
+                $keytext = $dbmanager->generator->getKeySQL($xmldb_table, $key);
+                $keytext = 'ALTER TABLE ' . $CFG->prefix . $xmldb_table->getName() . ' ADD FOREIGN KEY (' . $key->getFields()[0] . ') REFERENCES ' . $CFG->prefix . $key->getRefTable() . ' (' . $key->getRefFields()[0] . ');' . PHP_EOL;
+                fwrite($fkeys, $keytext);
             }
         }
+    }
 }
 
-function create_extra_fkeys($keys,$fhkeys){
+function create_extra_fkeys($keys, $fhkeys) {
+    global $CFG, $DB;
     print "<br/>";
-    global $CFG,$DB;
-    $sql = "update ".$CFG->prefix ."course_categories set parent=? where id=?";
-    $DB->execute($sql,array(1,1));
+    $sql = "update " . $CFG->prefix . "course_categories set parent=? where id=?";
+    $DB->execute($sql, array(1, 1));
 
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
@@ -243,8 +242,8 @@ function create_extra_fkeys($keys,$fhkeys){
         $reftable = get_field($key, "REFTABLE");
         if ($keytablename > '') {
             /*PHP_EOL == end of line */
-            $keytext = 'ALTER TABLE '.$CFG->prefix.$keytablename.' ADD FOREIGN KEY ('.$field. ') REFERENCES '.$CFG->prefix.$reftable. ' ('.$reffield.');'.PHP_EOL;
-            fwrite($fhkeys,$keytext);
+            $keytext = 'ALTER TABLE ' . $CFG->prefix . $keytablename . ' ADD FOREIGN KEY (' . $field . ') REFERENCES ' . $CFG->prefix . $reftable . ' (' . $reffield . ');' . PHP_EOL;
+            fwrite($fhkeys, $keytext);
         }
     }
 }
@@ -268,7 +267,7 @@ function find_key_for_table($tablename, $keys) {
 }
 
 function get_morekeys() {
-    $fkeys = fopen('morekeys.xml', 'r') or ( "cant open morekeys.xml file");
+    $fkeys = fopen('morekeys.xml', 'r') or ("cant open morekeys.xml file");
     $keys = array();
     if ($fkeys) {
         while (($line = fgets($fkeys)) !== false) {
@@ -282,7 +281,7 @@ function get_morekeys() {
 }
 
 function get_tablename($sql) {
-    $ct = PHP_EOL."CREATE TABLE";
+    $ct = PHP_EOL . "CREATE TABLE";
     /* start point of CREATE TABLE */
     $ctloc = strpos($sql, $ct);
     $tablestart = $ctloc + strlen($ct);
@@ -298,8 +297,8 @@ function get_tablename($sql) {
 function getDirectoryTree($sort = 0) {
     global $CFG;
     $dir = $CFG->dirroot;
-     $items = glob($dir . '/*');
-     for ($i = 0; $i < count($items); $i++) {
+    $items = glob($dir . '/*');
+    for ($i = 0; $i < count($items); $i++) {
         if (is_dir($items[$i])) {
             $add = glob($items[$i] . '/*');
             $items = array_merge($items, $add);
