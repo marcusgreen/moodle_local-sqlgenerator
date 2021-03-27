@@ -69,7 +69,12 @@ if ($data = $mform->get_data()) {
     }
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
-        generate_sql("placeholdercomponent", "output/create_tables.sql",$pluginfolder);
+        $sqlfile = "create_tables_moodle";
+        if (isset($data->pluginfolder)) {
+            $path = explode('/', $data->pluginfolder);
+            $sqlfile = $path[1];
+        }
+        generate_sql("placeholdercomponent", "output/".$sqlfile.".sql", $pluginfolder);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -83,27 +88,27 @@ function write_xml(array $tablestowrite=array()) {
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
     $fh = fopen('output/table_xml.html', 'w') or die("can't open file table_xml.html");
-    $findex= fopen("output/pluginxml/index.htm", "w");
-    fwrite($findex,"<h3>dbmxl files for each plugin extracted from the install folder</h3>");
-    fwrite($fh,"<pre>");
+    $findex = fopen("output/pluginxml/index.htm", "w");
+    fwrite($findex, "<h3>dbmxl files for each plugin extracted from the install folder</h3>");
+    fwrite($fh, "<pre>");
     foreach ($plugins as $plugin) {
         $contents = file_get_contents($plugin);
         $xml = simplexml_load_string($contents);
         $arr = $xml->attributes();
-        fwrite($fh,"<hr/>");
-        $folder=rtrim($plugin,"install.xml");
-        $folder=substr($folder,0,-4);
-        $folder=str_replace($CFG->dirroot,'',$folder);
-        $contents ="<br/><p>".$folder."<p/><pre>".htmlspecialchars($contents);
-        $folder=substr($folder,1);
-        $folder=str_replace("/","_",$folder);
-        $folder=$folder.".html";
+        fwrite($fh, "<hr/>");
+        $folder = rtrim($plugin,"install.xml");
+        $folder = substr($folder,0,-4);
+        $folder = str_replace($CFG->dirroot,'',$folder);
+        $contents = "<br/><p>".$folder."<p/><pre>".htmlspecialchars($contents);
+        $folder = substr($folder,1);
+        $folder = str_replace("/","_",$folder);
+        $folder = $folder.".html";
         echo "creating:".$folder."</br>";
-        $pluginxml_file=fopen("output/pluginxml/".$folder, "w");
-        fwrite($findex,"<a href=".$folder.">".$folder."</a><br/>");
+        $pluginxml_file = fopen("output/pluginxml/".$folder, "w");
+        fwrite($findex, "<a href=".$folder.">".$folder."</a><br/>");
         fwrite($pluginxml_file,$contents."</pre>");
         fclose($pluginxml_file);
-        fwrite($fh,($contents));
+        fwrite($fh, ($contents));
     }
 
     fwrite($fh,"</pre>");
@@ -155,9 +160,8 @@ function get_field($key, $field) {
     }
 }
 
-function generate_sql($component, $outputfile,$pluginfolder) {
-    global $CFG;
-    global $DB;
+function generate_sql($component, $outputfile, $pluginfolder) {
+    global $CFG, $DB;
 
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
