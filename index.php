@@ -70,7 +70,7 @@ if ($data = $mform->get_data()) {
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
         $sqlfile = "create_tables_moodle";
-        if (isset($data->pluginfolder)) {
+        if (isset($data->pluginfolder) && $data->pluginfolder > "") {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
@@ -151,7 +151,11 @@ $mform->display();
 echo $OUTPUT->footer();
 
 function get_field($key, $field) {
+    try{
     $xml = simplexml_load_string($key);
+    } catch(Exception $e){
+        print $e->getMessage();
+    }
     if ($xml != null) {
         $arr = $xml->attributes();
         return $arr[$field];
