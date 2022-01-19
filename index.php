@@ -275,6 +275,10 @@ function get_morekeys() {
     $keys = array();
     if ($fkeys) {
         while (($line = fgets($fkeys)) !== false) {
+            // Reject if nothing but white space.
+            if (ctype_space($line)) {
+                continue;
+            }
             $keys[] = $line;
         }
         fclose($fkeys);
