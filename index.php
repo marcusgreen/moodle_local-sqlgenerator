@@ -94,7 +94,6 @@ function write_xml(array $tablestowrite = array()) {
     foreach ($plugins as $plugin) {
         $contents = file_get_contents($plugin);
         $xml = simplexml_load_string($contents);
-        $arr = $xml->attributes();
         fwrite($fh, "<hr/>");
         $folder = rtrim($plugin, "install.xml");
         $folder = substr($folder, 0, -4);
@@ -215,7 +214,8 @@ function generate_sql($component, $outputfile, $pluginfolder) {
         }
     }
     fclose($fh);
-    \core\notification::add('Complete', \core\notification::SUCCESS);
+    $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
+    \core\notification::add($msg, \core\notification::SUCCESS);
 }
 
 function create_add_fkeys($dbmanager, $xmldb_tables, $fkeys) {
