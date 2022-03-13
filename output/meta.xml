@@ -1,13 +1,26 @@
-<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+<?xml version="1.0" encoding="UTF-8"?>
+schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
     <comments>The Moodle Database is Complex</comments>
     <tables>
-        <table name="user" comments="One record for each person, there are no gender or age fields">
-            <column name="accountId" comments="Column comment"/>
+        <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php">
+            <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
+            <column name="mnethostid" comments="mainly used for connecting to the Mahara e-portfolio system https://mahara.org/"/>
+            <column name="auth" comments="The authorisation system used by this account, e.g. Oauth2 or manual https://docs.moodle.org/dev/Authentication_plugins"/>
+            <column name="deleted" comments="always check for deleted=0 when looking for non deleted accounts"/>
+            <column name="confirmed" comments="The user has confirmed account https://docs.moodle.org/en/Cleanup#Delete_unconfirmed_users_after"/>
+            <column name="policyagreed" comments="User has agreed to system policies. https://github.com/moodle/moodle/tree/master/admin/tool/policy"/>
+            <column name="firstlogin" comments="Unix timetamp first time ever this user logged in"/>
+            <column name="currentlogin" comments="Unix timetamp for start of current login"/>
+            <column name="lastlogin" comments="Unix timetamp of last loginlogin"/>
+            <column name="timezone" comments="https://github.com/moodle/moodle/blob/master/lang/en/timezones.php"/>
+            <column name="descriptionformat" comments="HTML,MOODLE,PLAIN,MARKDOWN https://github.com/moodle/moodle/blob/master/lib/weblib.php"/>
         </table>
         <table name="glossary" comments="">
             <column name="displayformat" type="text">
                 <foreignKey table="glossary_formats" column="name" />
             </column>
+        </table>
+        <table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
         </table>
         <table name="resource_old" comments="">
             <column name="course" type="int">
