@@ -70,7 +70,7 @@ if ($data = $mform->get_data()) {
     if (isset($data->submitbutton)) {
         print "<br/>Generating:";
         $sqlfile = "create_tables_moodle";
-        if (isset($data->pluginfolder)) {
+        if (isset($data->pluginfolder) && $data->pluginfolder > "") {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
@@ -94,7 +94,6 @@ function write_xml(array $tablestowrite = array()) {
     foreach ($plugins as $plugin) {
         $contents = file_get_contents($plugin);
         $xml = simplexml_load_string($contents);
-        $arr = $xml->attributes();
         fwrite($fh, "<hr/>");
         $folder = rtrim($plugin, "install.xml");
         $folder = substr($folder, 0, -4);
@@ -151,7 +150,11 @@ $mform->display();
 echo $OUTPUT->footer();
 
 function get_field($key, $field) {
+    try{
     $xml = simplexml_load_string($key);
+    } catch(Exception $e){
+        print $e->getMessage();
+    }
     if ($xml != null) {
         $arr = $xml->attributes();
         return $arr[$field];
@@ -211,7 +214,8 @@ function generate_sql($component, $outputfile, $pluginfolder) {
         }
     }
     fclose($fh);
-    \core\notification::add('Complete', \core\notification::SUCCESS);
+    $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
+    \core\notification::add($msg, \core\notification::SUCCESS);
 }
 
 function create_add_fkeys($dbmanager, $xmldb_tables, $fkeys) {
@@ -271,6 +275,10 @@ function get_morekeys() {
     $keys = array();
     if ($fkeys) {
         while (($line = fgets($fkeys)) !== false) {
+            // Reject if nothing but white space.
+            if (ctype_space($line)) {
+                continue;
+            }
             $keys[] = $line;
         }
         fclose($fkeys);
