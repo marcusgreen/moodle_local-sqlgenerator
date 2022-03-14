@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
-    <comments>![Moodle Logo](https://examulator.com/er/icons/Moodle-icon_30.png)   The Moodle Database is Complex. Normal installation discards Primary/Foreign Keys and field comments. These diagrams restore that data</comments>    <tables>
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+    <comments>![Moodle Logo](https://examulator.com/er/icons/Moodle-icon_30.png) The Moodle Database is complex. Normal installation discards Primary/Foreign Keys and field comments. These diagrams restore that data</comments>
+    <tables>
         <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php">
             <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
             <column name="mnethostid" comments="mainly used for connecting to the Mahara e-portfolio system https://mahara.org/"/>
@@ -26,7 +27,7 @@ schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespace
                 <foreignKey table="course" column="id" />
             </column>
         </table>
-            <table name="mnet_sso_access_control" comments="">
+        <table name="mnet_sso_access_control" comments="">
             <column name="username" type="text">
                 <foreignKey table="user" column="username" />
             </column>
