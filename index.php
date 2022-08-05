@@ -68,7 +68,7 @@ if ($data = $mform->get_data()) {
 
     }
     if (isset($data->submitbutton)) {
-        print "<br/>Generating:";
+        // print "<br/>Generating:";
         $sqlfile = "create_tables_moodle";
         if (isset($data->pluginfolder) && $data->pluginfolder > "") {
             $path = explode('/', $data->pluginfolder);
@@ -214,7 +214,8 @@ function generate_sql($component, $outputfile, $pluginfolder) {
         }
     }
     fclose($fh);
-    $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
+
+    $msg = "File written to : file://".__DIR__.DIRECTORY_SEPARATOR.$outputfile;
     \core\notification::add($msg, \core\notification::SUCCESS);
 }
 
