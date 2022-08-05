@@ -25,9 +25,11 @@
 
 
 $string['component']  = 'Component';
-$string['generate']   = 'Generate';
+$string['generate']   = 'Generate sql create table sql file';
 $string['pluginname'] = 'SQL Generator';
 $string['pluginfolder']   = 'Plugin folder';
-$string['pluginfolder_help'] = 'Leave blank for all plugins';
+$string['pluginfolder_help'] = 'Path to single plugin e.g. mod/label. Leave blank for all plugins';
+
+
 
 
