@@ -74,7 +74,7 @@ if ($data = $mform->get_data()) {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
-        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder);
+        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder, $data);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -163,7 +163,7 @@ function get_field($key, $field) {
     }
 }
 
-function generate_sql($component, $outputfile, $pluginfolder) {
+function generate_sql($component, $outputfile, $pluginfolder, stdClass $formdata) {
     global $CFG, $DB;
 
     $dbmanager = $DB->get_manager();
@@ -176,7 +176,13 @@ function generate_sql($component, $outputfile, $pluginfolder) {
     }
 
     $fh = fopen($outputfile, 'w') or die("can't open file:" . $outputfile);
+
     fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL);
+    $dbname = $formdata->targetdatabase;
+    fwrite($fh, "CREATE DATABASE  $dbname;" . PHP_EOL);
+    fwrite($fh, "ALTER DATABASE $dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;". PHP_EOL);
+    fwrite($fh, "USE $dbname;". PHP_EOL);
+
     /* This allows tables to created with foreign keys */
     fwrite($fh, 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL);
     $keys = get_morekeys();

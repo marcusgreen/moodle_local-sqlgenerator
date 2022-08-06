@@ -23,13 +23,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 $string['component']  = 'Component';
-$string['generate']   = 'Generate sql create table sql file';
+$string['generate']   = 'Generate "create table" sql file';
 $string['pluginname'] = 'SQL Generator';
 $string['pluginfolder']   = 'Plugin folder';
 $string['pluginfolder_help'] = 'Path to single plugin e.g. mod/label. Leave blank for all plugins';
-
-
-
-
+$string['targetdatabase'] = 'Target database';
+$string['targetdatabase_help'] = 'Database name that will be used in the output files';
