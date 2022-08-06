@@ -39,6 +39,10 @@ class local_sqlgenerator_form extends moodleform {
         $mform->addElement('text', 'pluginfolder', get_string('pluginfolder', 'local_sqlgenerator'));
         $mform->addHelpButton('pluginfolder', 'pluginfolder', 'local_sqlgenerator');
         $mform->setType('pluginfolder', PARAM_TEXT);
+        $mform->addElement('text', 'targetdatabase', get_string('targetdatabase', 'local_sqlgenerator'));
+        $mform->addHelpButton('targetdatabase', 'targetdatabase', 'local_sqlgenerator');
+        $mform->setType('targetdatabase', PARAM_TEXT);
+        $mform->setDefault('targetdatabase',$CFG->dbname .'_erd');
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
         $mform->addElement('submit', 'checkmorekeys', 'Check MoreKeys.xml');
         $mform->addElement('submit', 'writexml', 'Write XML');
