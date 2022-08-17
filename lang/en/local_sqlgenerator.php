@@ -29,4 +29,4 @@ $string['pluginname'] = 'SQL Generator';
 $string['pluginfolder']   = 'Plugin folder';
 $string['pluginfolder_help'] = 'Path to single plugin e.g. mod/label. Leave blank for all plugins';
 $string['targetdatabase'] = 'Target database';
-$string['targetdatabase_help'] = 'Database name that will be used in the output files';
+$string['targetdatabase_help'] = 'Database name that will be used in the output files. Defaults to current database with _erd appended';
