@@ -68,13 +68,13 @@ if ($data = $mform->get_data()) {
 
     }
     if (isset($data->submitbutton)) {
-        // print "<br/>Generating:";
+        print "<br/>Generating:";
         $sqlfile = "create_tables_moodle";
         if (isset($data->pluginfolder) && $data->pluginfolder > "") {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
-        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder, $data);
+        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -163,11 +163,12 @@ function get_field($key, $field) {
     }
 }
 
-function generate_sql($component, $outputfile, $pluginfolder, stdClass $formdata) {
+function generate_sql($component, $outputfile, $pluginfolder) {
     global $CFG, $DB;
 
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
+    $dbmanager->generator->prefix = ''; 
     $plugins = [];
     if ($pluginfolder === "") {
         $plugins = getDirectoryTree();
@@ -176,15 +177,14 @@ function generate_sql($component, $outputfile, $pluginfolder, stdClass $formdata
     }
 
     $fh = fopen($outputfile, 'w') or die("can't open file:" . $outputfile);
+    $sql = '';
+    $sql .= "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL;
+    $sql .= "/* This allows tables to created with foreign keys */".PHP_EOL;
+    $sql .= "SET FOREIGN_KEY_CHECKS=0;" . PHP_EOL;
+    $sql .= "CREATE DATABASE mdl_er DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;".PHP_EOL;
+    $sql .= "USE mdl_er;" . PHP_EOL;
+    fwrite($fh, $sql. PHP_EOL);
 
-    fwrite($fh, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL);
-    $dbname = $formdata->targetdatabase;
-    fwrite($fh, "CREATE DATABASE  $dbname;" . PHP_EOL);
-    fwrite($fh, "ALTER DATABASE $dbname DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci;". PHP_EOL);
-    fwrite($fh, "USE $dbname;". PHP_EOL);
-
-    /* This allows tables to created with foreign keys */
-    fwrite($fh, 'SET FOREIGN_KEY_CHECKS=0;' . PHP_EOL);
     $keys = get_morekeys();
     $fhkeys = fopen('output/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
     fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */" . PHP_EOL);
@@ -220,8 +220,7 @@ function generate_sql($component, $outputfile, $pluginfolder, stdClass $formdata
         }
     }
     fclose($fh);
-
-    $msg = "File written to : file://".__DIR__.DIRECTORY_SEPARATOR.$outputfile;
+    $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
     \core\notification::add($msg, \core\notification::SUCCESS);
 }
 
