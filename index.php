@@ -26,8 +26,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/local/sqlgenerator/locallib.php');
 $PAGE->set_context(context_system::instance());
 
-global $DB;
-global $CFG;
+global $DB, $CFG;
 $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
@@ -36,7 +35,7 @@ $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
     $pluginfolder = $data->pluginfolder ?? '';
-
+    $targetdatabase = $data->targetdatabase;
     /* component.sql is the name of the output file with the sql statements */
     if (isset($data->checkmorekeys)) {
         $plugin_tablenames = get_tablenames_from_plugins();
@@ -74,7 +73,7 @@ if ($data = $mform->get_data()) {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
-        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder);
+        generate_sql("placeholdercomponent", "output/" . $sqlfile . ".sql", $pluginfolder, $data);
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -163,7 +162,7 @@ function get_field($key, $field) {
     }
 }
 
-function generate_sql($component, $outputfile, $pluginfolder) {
+function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
     global $CFG, $DB;
 
     $dbmanager = $DB->get_manager();
@@ -181,8 +180,8 @@ function generate_sql($component, $outputfile, $pluginfolder) {
     $sql .= "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL;
     $sql .= "/* This allows tables to created with foreign keys */".PHP_EOL;
     $sql .= "SET FOREIGN_KEY_CHECKS=0;" . PHP_EOL;
-    $sql .= "CREATE DATABASE mdl_er DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;".PHP_EOL;
-    $sql .= "USE mdl_er;" . PHP_EOL;
+    $sql .= "CREATE DATABASE ".$fromform->targetdatabase ." DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;".PHP_EOL;
+    $sql .= "USE ". $fromform->targetdatabase. ";" . PHP_EOL;
     fwrite($fh, $sql. PHP_EOL);
 
     $keys = get_morekeys();
@@ -219,11 +218,35 @@ function generate_sql($component, $outputfile, $pluginfolder) {
             fwrite($fh, $sql);
         }
     }
+    schemaspy_properties($fromform);
     fclose($fh);
     $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
     \core\notification::add($msg, \core\notification::SUCCESS);
 }
+function schemaspy_properties($fromform){
+    $fh = fopen('output/schemaspy.properties', 'w') or die("can't open file schemaspy.properties");
+    // Change details like u for username and p for password to suit your setup.
+    $properties =  <<<EOT
+        # type of database always mysql for this tool  
+        schemaspy.t= mysql
+        # optional path to alternative jdbc drivers.
+        schemaspy.dp=drivers
+        # database properties: host, port number, name user, password
+        schemaspy.host=localhost
+        schemaspy.port=3306
+        schemaspy.db=$fromform->targetdatabase
+        schemaspy.u=moodle
+        schemaspy.p=password
+        # output dir to save generated files
+        schemaspy.o=$fromform->targetdatabase
+        # db scheme for which generate diagrams
+        schemaspy.s=$fromform->targetdatabase
+    EOT;
 
+    $x=1;
+    fwrite($fh, $properties. PHP_EOL);
+
+}
 function create_add_fkeys($dbmanager, $xmldb_tables, $fkeys) {
     global $CFG;
     foreach ($xmldb_tables as $xmldb_table) {
