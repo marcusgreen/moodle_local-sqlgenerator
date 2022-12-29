@@ -19,4 +19,10 @@ The SQL code is called component.sql and  output to the same folder as the code 
 To see diagrams generated from the output of this plugin see here
 http://www.examulator.com/er/
 
+To create the database that is used for the diagrams use this command line
+
+mysql  -umoodle -p -f < create_tables_moodle.sql
+
+The -f parameter is to force the process to continue if errors occur. There is at least one error triggered by an anomoly in the primary/foreign keys
+
 
