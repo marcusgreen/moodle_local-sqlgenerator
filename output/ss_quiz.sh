@@ -1,0 +1,1 @@
+java -jar schemaspy-6.1.0.jar -desc='Quiz tables'   -i "(quiz|question||question_usages|question_attempts|quiz_grades|quiz_attempts|quiz_sections|quiz_slots)" -o moodle_401/quiz
