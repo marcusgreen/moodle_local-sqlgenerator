@@ -46,11 +46,13 @@
             <column name="completionattemptsexhausted" comments="complete after available attempts exhausted" type="int">
             </column>
             <column name="completionminattempts" comments="complete after minimum number of attempts" type="int">
-            </column>      
+            </column>
         </table>
         <table name="course">
             <column name="showreports" comments="can a student view their own activity reports via their profile page"/>
             <column name="marker" comments="marks a topic as highlighted, only one topic can be highlighted at a time"/>
+            <column name="newsitems" comments="count of announcements in latest announcments block"/>
+            <column name="maxbytes" comments="largest file that can be uploaded to the course"/>
         </table>
     </tables>
 </schemaMeta>
