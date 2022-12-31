@@ -31,6 +31,13 @@ $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
+$codemods = true;
+$codemods =function_exists('sqlgen_generator');
+
+if(!$codemods) {
+    $msg = 'is_sqlgen function not found: no field comments, have you copied over the files from local\sqlgenerator\codemods';
+    \core\notification::add($msg, \core\notification::WARNING);
+}
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
 $output = $PAGE->get_renderer('local_sqlgenerator');
 if ($data = $mform->get_data()) {
@@ -167,7 +174,7 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
 
     $dbmanager = $DB->get_manager();
     $dbmanager->generator->foreign_keys = true;
-    $dbmanager->generator->prefix = ''; 
+    $dbmanager->generator->prefix = '';
     $plugins = [];
     if ($pluginfolder === "") {
         $plugins = getDirectoryTree();
@@ -227,7 +234,7 @@ function schemaspy_properties($fromform){
     $fh = fopen('output/schemaspy.properties', 'w') or die("can't open file schemaspy.properties");
     // Change details like u for username and p for password to suit your setup.
     $properties =  <<<EOT
-        # type of database always mysql for this tool  
+        # type of database always mysql for this tool
         schemaspy.t= mysql
         # optional path to alternative jdbc drivers.
         schemaspy.dp=drivers
