@@ -28,7 +28,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-function sqlgen_generator() {
+function sqlgen_sql_generator() {
     return true;
 }
 /**
