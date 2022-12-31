@@ -28,6 +28,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
+function sqlgen_generator() {
+    return true;
+}
 /**
  * Abstract sql generator class, base for all db specific implementations.
  *
@@ -295,8 +298,8 @@ abstract class sql_generator {
         if (!$xmldb_fields = $xmldb_table->getFields()) {
             return $results;
         }
-        
-     
+
+
         $sequencefield = null;
 
         // Add the fields, separated by commas
@@ -310,8 +313,8 @@ abstract class sql_generator {
 
         }
         /*mavg*/
-     
-          
+
+
         // Add the keys, separated by commas
         if ($xmldb_keys = $xmldb_table->getKeys()) {
             foreach ($xmldb_keys as $xmldb_key) {
@@ -512,7 +515,7 @@ abstract class sql_generator {
         } else {
             $field .= $default_clause . $notnull;
         }
-    
+
         // The sequence
         if ($xmldb_field->getSequence()) {
             if($xmldb_field->getLength()<=9 && $this->sequence_name_small) {
