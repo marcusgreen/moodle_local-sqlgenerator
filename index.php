@@ -31,11 +31,12 @@ $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
-$codemods = true;
-$codemods =function_exists('sqlgen_generator');
+xdebug_break();
+$sql_generator=function_exists('sqlgen_sql_generator');
+$xmldb_field =function_exists('sqlgen_xmldb_field');
 
-if(!$codemods) {
-    $msg = 'is_sqlgen function not found: no field comments, have you copied over the files from local\sqlgenerator\codemods';
+if($sql_generator ==false || $xmldb_field == false) {
+    $msg = 'one or more of the codemods files has not been copie from local\sqlgenerator\codemods';
     \core\notification::add($msg, \core\notification::WARNING);
 }
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
@@ -282,7 +283,7 @@ function create_extra_fkeys($keys, $fhkeys) {
         $reftable = get_field($key, "REFTABLE");
         if ($keytablename > '') {
             /*PHP_EOL == end of line */
-            $keytext = 'ALTER TABLE ' . $CFG->prefix . $keytablename . ' ADD FOREIGN KEY (' . $field . ') REFERENCES ' . $CFG->prefix . $reftable . ' (' . $reffield . ');' . PHP_EOL;
+            $keytext = 'ALTER TABLE '. $keytablename . ' ADD FOREIGN KEY (' . $field . ') REFERENCES ' . $CFG->prefix . $reftable . ' (' . $reffield . ');' . PHP_EOL;
             fwrite($fhkeys, $keytext);
         }
     }
