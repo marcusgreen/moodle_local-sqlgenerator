@@ -14,6 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+function sqlgen_xmldb_field() {
+    return true;
+}
 /**
  * This class represent one XMLDB Field
  *
@@ -45,7 +48,7 @@ class xmldb_field extends xmldb_object {
 
     /** @var int number of decimals */
     protected $decimals;
-    
+
     /** @var string field comment */
     protected $comment;
 
@@ -139,7 +142,7 @@ class xmldb_field extends xmldb_object {
             $this->length = null;
             $this->decimals = null;
         }
-        
+
         $this->comment=$comment;
         $this->previous = $previous;
        //     if($this->name=='plugins'){
@@ -196,10 +199,10 @@ class xmldb_field extends xmldb_object {
     public function getSequence() {
         return $this->sequence;
     }
-    
+
     /*mavg*/
     public function getComment(){
-        if($this->comment <>''){     
+        if($this->comment <>''){
             $comment = $this->comment;
            /*  $pattern = '/\(/';
             $replacement='';
