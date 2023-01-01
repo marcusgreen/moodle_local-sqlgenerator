@@ -1,0 +1,1 @@
+java -jar schemaspy-6.1.0.jar -desc='Course tables: got to http://www.examulator.com/er for all Moodle tables' -imageformat=svg  -i "(course|course_sections|course_format_options|course_categories|course_modules|enrol)" -o moodle_401/course
