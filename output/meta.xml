@@ -15,6 +15,7 @@
             <column name="timezone" comments="https://github.com/moodle/moodle/blob/master/lang/en/timezones.php"/>
             <column name="descriptionformat" comments="HTML,MOODLE,PLAIN,MARKDOWN https://github.com/moodle/moodle/blob/master/lib/weblib.php"/>
         </table>
+        <table name="forum" comments="Forum discussion system. For sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Forum_Activity"/>
         <table name="glossary" comments="">
             <column name="displayformat" type="text">
                 <foreignKey table="glossary_formats" column="name" />
@@ -37,18 +38,20 @@
                 <foreignKey table="assign_submission" column="id" />
             </column>
         </table>
+        <table name="assign" comments="This table saves information about an instance of mod_assign in a course. For sample reports see https://docs.moodle.org/401/en/ad-hoc_contributed_reports#Assignment_Activity">
+        </table>
         <table name="repository_instance_config" comments="">
             <column name="instanceid" type="int">
                 <foreignKey table="repository_instances" column="id" />
             </column>
         </table>
-        <table name="quiz" comments="The settings for each quiz">
+        <table name="quiz" comments="The settings for each quiz. For reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Quiz_Activity">
             <column name="completionattemptsexhausted" comments="complete after available attempts exhausted" type="int">
             </column>
             <column name="completionminattempts" comments="complete after minimum number of attempts" type="int">
             </column>
         </table>
-        <table name="course">
+        <table name="course" comments="Central course table. For reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#COURSE_REPORTS">
             <column name="showreports" comments="can a student view their own activity reports via their profile page"/>
             <column name="marker" comments="marks a topic as highlighted, only one topic can be highlighted at a time"/>
             <column name="newsitems" comments="count of announcements in latest announcments block"/>
