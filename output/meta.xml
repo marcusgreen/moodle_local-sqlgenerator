@@ -57,5 +57,7 @@
             <column name="newsitems" comments="count of announcements in latest announcments block"/>
             <column name="maxbytes" comments="largest file that can be uploaded to the course"/>
         </table>
+        <table badges="survey" comments="Defines badge  for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Badges"/>
+        <table badges="lesson" comments="Defines lesson for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Lesson_Activity"/>
     </tables>
 </schemaMeta>
