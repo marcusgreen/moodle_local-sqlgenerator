@@ -15,7 +15,9 @@
             <column name="timezone" comments="https://github.com/moodle/moodle/blob/master/lang/en/timezones.php"/>
             <column name="descriptionformat" comments="HTML,MOODLE,PLAIN,MARKDOWN https://github.com/moodle/moodle/blob/master/lib/weblib.php"/>
         </table>
-        <table name="forum" comments="Forum discussion system. For sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Forum_Activity"/>
+        <table name="forum" comments="Forum discussion system. For sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Forum_Activity">
+        <column name="assessed" comments="Rating aggregate type can be: average, count, maximum, minimum, sum. As integers"/>
+        </table>
         <table name="glossary" comments="">
             <column name="displayformat" type="text">
                 <foreignKey table="glossary_formats" column="name" />
@@ -57,7 +59,7 @@
             <column name="newsitems" comments="count of announcements in latest announcments block"/>
             <column name="maxbytes" comments="largest file that can be uploaded to the course"/>
         </table>
-        <table badges="survey" comments="Defines badge  for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Badges"/>
-        <table badges="lesson" comments="Defines lesson for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Lesson_Activity"/>
+        <table name="survey" comments="Defines badge  for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Badges"/>
+        <table name="lesson" comments="Defines lesson for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Lesson_Activity"/>
     </tables>
 </schemaMeta>
