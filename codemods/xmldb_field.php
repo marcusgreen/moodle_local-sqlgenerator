@@ -85,7 +85,7 @@ class xmldb_field extends xmldb_object {
      *
      * @const maximumn length of field names
      */
-    const NAME_MAX_LENGTH = 30;
+    const NAME_MAX_LENGTH = 40;
 
     /**
      * Creates one new xmldb_field
