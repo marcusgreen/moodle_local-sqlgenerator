@@ -188,6 +188,8 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
     $sql .= "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " SQL code */" . PHP_EOL;
     $sql .= "/* This allows tables to created with foreign keys */".PHP_EOL;
     $sql .= "SET FOREIGN_KEY_CHECKS=0;" . PHP_EOL;
+    $sql .= "DROP DATABASE IF EXISTS ".$fromform->targetdatabase. ";".PHP_EOL;
+
     $sql .= "CREATE DATABASE ".$fromform->targetdatabase ." DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;".PHP_EOL;
     $sql .= "USE ". $fromform->targetdatabase. ";" . PHP_EOL;
     fwrite($fh, $sql. PHP_EOL);
@@ -288,6 +290,7 @@ function create_extra_fkeys($keys, $fhkeys) {
         }
     }
 }
+
 function find_key_for_table($tablename, $keys) {
     $foreignkeys = array();
     foreach ($keys as $key) {
