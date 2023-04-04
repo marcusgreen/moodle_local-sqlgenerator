@@ -47,6 +47,10 @@
                 <foreignKey table="repository_instances" column="id" />
             </column>
         </table>
+        <table name="question">
+            <column name="parent" comments="if bigger than 0 this is a (hidden) subquesiton, used by Cloze" type="BIGINT">
+        </column>
+        </table>
         <table name="quiz" comments="The settings for each quiz. For reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Quiz_Activity">
             <column name="completionattemptsexhausted" comments="complete after available attempts exhausted" type="int">
             </column>
