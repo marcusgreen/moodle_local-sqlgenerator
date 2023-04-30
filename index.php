@@ -31,7 +31,6 @@ $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
-xdebug_break();
 $sql_generator=function_exists('sqlgen_sql_generator');
 $xmldb_field =function_exists('sqlgen_xmldb_field');
 
