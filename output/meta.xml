@@ -2,7 +2,8 @@
 <schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
     <comments>![Moodle Logo](https://examulator.com/er/icons/Moodle-icon_30.png) The Moodle Database is complex. Normal installation discards Primary/Foreign Keys and field comments. These diagrams restore that data</comments>
     <tables>
-	     <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php for sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#USER_and_ENROLMENT_Reports">
+    	<table name="adminpresets" comments="named sets of site wide configurations e.g. enable/disable features https://www.youtube.com/watch?v=CyNOhbJ76fY"/>
+	    <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php for sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#USER_and_ENROLMENT_Reports">
 	    <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
             <column name="mnethostid" comments="mainly used for connecting to the Mahara e-portfolio system https://mahara.org/"/>
             <column name="auth" comments="The authorisation system used by this account, e.g. Oauth2 or manual https://docs.moodle.org/dev/Authentication_plugins"/>
@@ -23,6 +24,7 @@
                 <foreignKey table="glossary_formats" column="name" />
             </column>
         </table>
+        <table name="files" comments="description of files, content is stored in sha1 file pool meaning no duplicate storage https://docs.moodle.org/en/ad-hoc_contributed_reports#List_course_resources_accumulative_file_size_and_count">
         <table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
         </table>
         <table name="resource_old" comments="">
