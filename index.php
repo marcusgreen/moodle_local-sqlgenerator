@@ -34,8 +34,9 @@ $PAGE->set_url('/admin/sqlgenerator.php');
 $sqlgenerator=function_exists('sqlgen_sql_generator');
 $xmldb_field =function_exists('sqlgen_xmldb_field');
 
-if($sqlgenerator ==false || $xmldb_field == false) {
-    $msg = 'one or more of the codemods files has not been copie from local\sqlgenerator\codemods';
+if ($sqlgenerator ==false || $xmldb_field == false) {
+    $msg = 'one or more of the files has not been copied from local\sqlgenerator\codemods';
+    $msg .= '/local/sqlgenerator/codemods/readme.md';
     \core\notification::add($msg, \core\notification::WARNING);
 }
 $mform = new local_sqlgenerator_form(new moodle_url('/local/sqlgenerator/'));
@@ -225,6 +226,7 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
                 $sql = substr_replace($sql, ',' . $keystring, $lastparenloc, 0);
             }
             fwrite($fh, $sql);
+
         }
     }
     schemaspy_properties($fromform);
