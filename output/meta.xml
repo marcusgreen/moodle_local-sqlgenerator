@@ -25,7 +25,8 @@
             </column>
         </table>
         <table name="files" comments="description of files, content is stored in sha1 file pool meaning no duplicate storage https://docs.moodle.org/en/ad-hoc_contributed_reports#List_course_resources_accumulative_file_size_and_count">
-        <table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
+	</table>
+	<table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
         </table>
         <table name="resource_old" comments="">
             <column name="course" type="int">
