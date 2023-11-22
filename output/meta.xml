@@ -25,8 +25,8 @@
             </column>
         </table>
         <table name="files" comments="description of files, content is stored in sha1 file pool meaning no duplicate storage https://docs.moodle.org/en/ad-hoc_contributed_reports#List_course_resources_accumulative_file_size_and_count">
-	</table>
-	<table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
+        </table>
+        <table name="survey" comments="Each record is one SURVEY module with its configuration, https://docs.moodle.org/en/Survey_activity">
         </table>
         <table name="resource_old" comments="">
             <column name="course" type="int">
@@ -65,6 +65,8 @@
             <column name="marker" comments="marks a topic as highlighted, only one topic can be highlighted at a time"/>
             <column name="newsitems" comments="count of announcements in latest announcments block"/>
             <column name="maxbytes" comments="largest file that can be uploaded to the course"/>
+        </table>
+        <table name="question_attempts" comments="Each row here corresponds to an attempt at one question, as part of a question_usage. A question_attempt will have some question_attempt_steps For documentation https://docs.moodle.org/dev/Overview_of_the_Moodle_question_engine">
         </table>
         <table name="survey" comments="Defines badge  for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Badges"/>
         <table name="lesson" comments="Defines lesson for reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Lesson_Activity"/>
