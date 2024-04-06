@@ -53,6 +53,9 @@
         <table name="question">
             <column name="parent" comments="if bigger than 0 this is a (hidden) subquesiton, used by Cloze" type="BIGINT">
         </column>
+	<table name="grading_instances">
+            <column name="status" comments="The status of the assessment. By default the instance is under-assessment state see https://moodledev.io/docs/apis/core/grading#grading-form-instance" type="BIGINT">
+        </column>
         </table>
         <table name="quiz" comments="The settings for each quiz. For reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Quiz_Activity">
             <column name="completionattemptsexhausted" comments="complete after available attempts exhausted" type="int">
