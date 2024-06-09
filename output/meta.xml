@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd" >
+<schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd">
     <comments>![Moodle Logo](https://examulator.com/er/icons/Moodle-icon_30.png) The Moodle Database is complex. Normal installation discards Primary/Foreign Keys and field comments. These diagrams restore that data</comments>
     <tables>
-    	<table name="adminpresets" comments="named sets of site wide configurations e.g. enable/disable features https://www.youtube.com/watch?v=CyNOhbJ76fY"/>
-	    <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php for sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#USER_and_ENROLMENT_Reports">
-	    <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
+        <table name="adminpresets" comments="named sets of site wide configurations e.g. enable/disable features https://www.youtube.com/watch?v=CyNOhbJ76fY"/>
+        <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php for sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#USER_and_ENROLMENT_Reports">
+            <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
             <column name="mnethostid" comments="mainly used for connecting to the Mahara e-portfolio system https://mahara.org/"/>
             <column name="auth" comments="The authorisation system used by this account, e.g. Oauth2 or manual https://docs.moodle.org/dev/Authentication_plugins"/>
             <column name="deleted" comments="always check for deleted=0 when looking for non deleted accounts"/>
@@ -17,7 +17,7 @@
             <column name="descriptionformat" comments="HTML,MOODLE,PLAIN,MARKDOWN https://github.com/moodle/moodle/blob/master/lib/weblib.php"/>
         </table>
         <table name="forum" comments="Forum discussion system. For sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Forum_Activity">
-        <column name="assessed" comments="Rating aggregate type can be: average, count, maximum, minimum, sum. As integers"/>
+            <column name="assessed" comments="Rating aggregate type can be: average, count, maximum, minimum, sum. As integers"/>
         </table>
         <table name="glossary" comments="">
             <column name="displayformat" type="text">
@@ -52,10 +52,11 @@
         </table>
         <table name="question">
             <column name="parent" comments="if bigger than 0 this is a (hidden) subquesiton, used by Cloze" type="BIGINT">
-        </column>
-	<table name="grading_instances">
+            </column>
+        </table>
+        <table name="grading_instances">
             <column name="status" comments="The status of the assessment. By default the instance is under-assessment state see https://moodledev.io/docs/apis/core/grading#grading-form-instance" type="BIGINT">
-        </column>
+            </column>
         </table>
         <table name="quiz" comments="The settings for each quiz. For reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#Quiz_Activity">
             <column name="completionattemptsexhausted" comments="complete after available attempts exhausted" type="int">
