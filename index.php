@@ -31,10 +31,11 @@ $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
-$sqlgenerator=function_exists('sqlgen_sql_generator');
-$xmldb_field =function_exists('sqlgen_xmldb_field');
+$sqlgenerator = function_exists('sqlgen_sql_generator');
+$xmldb_field  = function_exists('sqlgen_xmldb_field');
 
-if ($sqlgenerator ==false || $xmldb_field == false) {
+
+if ($sqlgenerator == false || $xmldb_field == false) {
     $msg = 'one or more of the files has not been copied from local\sqlgenerator\codemods';
     $msg .= '/local/sqlgenerator/codemods/readme.md';
     \core\notification::add($msg, \core\notification::WARNING);

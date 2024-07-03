@@ -36,9 +36,11 @@ class local_sqlgenerator_form extends moodleform {
     protected function definition() {
         global $CFG;
         $mform = $this->_form;
-        $mform->addElement('text', 'pluginfolder', get_string('pluginfolder', 'local_sqlgenerator'));
-        $mform->addHelpButton('pluginfolder', 'pluginfolder', 'local_sqlgenerator');
-        $mform->setType('pluginfolder', PARAM_TEXT);
+        //$mform->addElement('text', 'pluginfolder', get_string('pluginfolder', 'local_sqlgenerator'));
+        //$mform->addHelpButton('pluginfolder', 'pluginfolder', 'local_sqlgenerator');
+        //$mform->setType('pluginfolder', PARAM_TEXT);
+        $plugins = $this->get_plugins();
+        $mform->addElement('select','plugins', 'Plugins', $plugins);
         $mform->addElement('text', 'targetdatabase', get_string('targetdatabase', 'local_sqlgenerator'));
         $mform->addHelpButton('targetdatabase', 'targetdatabase', 'local_sqlgenerator');
         $mform->setType('targetdatabase', PARAM_TEXT);
@@ -46,6 +48,18 @@ class local_sqlgenerator_form extends moodleform {
         $mform->addElement('submit', 'submitbutton', get_string('generate', 'local_sqlgenerator'));
         $mform->addElement('submit', 'checkmorekeys', 'Check MoreKeys.xml');
         $mform->addElement('submit', 'writexml', 'Write XML');
+    }
+    private function get_plugins() {
+        $pluginman = \core_plugin_manager::instance();
+        $plugininfo = $pluginman->get_plugins();
+        foreach ($plugininfo as $plugintype => $pluginnames) {
+            foreach ($pluginnames as $pluginname => $pluginfo) {
+                    $plugins[$pluginfo->type .'_'. $pluginfo->name] = $pluginfo->name;
+
+            }
+
+            return $plugins;
+        }
     }
 
 }
