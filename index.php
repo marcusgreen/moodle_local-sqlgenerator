@@ -31,10 +31,10 @@ $component = optional_param('component', '', PARAM_PATH);
 
 $PAGE->set_url('/admin/sqlgenerator.php');
 
-$sqlgenerator=function_exists('sqlgen_sql_generator');
-$xmldb_field =function_exists('sqlgen_xmldb_field');
+$sqlgenerator = function_exists('sqlgen_sql_generator');
+$xmldb_field = function_exists('sqlgen_xmldb_field');
 
-if ($sqlgenerator ==false || $xmldb_field == false) {
+if ($sqlgenerator == false || $xmldb_field == false) {
     $msg = 'one or more of the files has not been copied from local\sqlgenerator\codemods';
     $msg .= '/local/sqlgenerator/codemods/readme.md';
     \core\notification::add($msg, \core\notification::WARNING);
@@ -48,7 +48,7 @@ if ($data = $mform->get_data()) {
     if (isset($data->checkmorekeys)) {
         $plugin_tablenames = get_tablenames_from_plugins();
         $keys = get_morekeys();
-        print "<br/>SizeOf keys :" . sizeof($keys);
+        print "<br/>SizeOf keys :" . count($keys);
         print "<br/><br/><br/><br/>Rows in morekeys.xml with no matching plugin table";
         $nomatchcount = 0;
         $loopstep = 0;
@@ -90,9 +90,8 @@ if ($data = $mform->get_data()) {
     }
 }
 
-function write_xml(array $tablestowrite = array()) {
+function write_xml(array $tablestowrite = []) {
     global $DB, $CFG;
-    $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
     $fh = fopen('output/table_xml.html', 'w') or die("can't open file table_xml.html");
     $findex = fopen("output/pluginxml/index.htm", "w");
@@ -100,7 +99,6 @@ function write_xml(array $tablestowrite = array()) {
     fwrite($fh, "<pre>");
     foreach ($plugins as $plugin) {
         $contents = file_get_contents($plugin);
-        $xml = simplexml_load_string($contents);
         fwrite($fh, "<hr/>");
         $folder = rtrim($plugin, "install.xml");
         $folder = substr($folder, 0, -4);
@@ -127,7 +125,7 @@ function get_tablenames_from_plugins() {
     $dbmanager = $DB->get_manager();
     $plugins = getDirectoryTree();
     $tablecount = 0;
-    $plugintables = array();
+    $plugintables = [];
     foreach ($plugins as $plugin) {
         $sqlarr = get_sqlarr($plugin, $dbmanager);
         foreach ($sqlarr as $sql) {
@@ -254,7 +252,6 @@ function schemaspy_properties($fromform){
         schemaspy.s=$fromform->targetdatabase
     EOT;
 
-    $x=1;
     fwrite($fh, $properties. PHP_EOL);
 
 }
@@ -276,7 +273,7 @@ function create_extra_fkeys($keys, $fhkeys) {
     global $CFG, $DB;
     print "<br/>";
     $sql = "update " . $CFG->prefix . "course_categories set parent=? where id=?";
-    $DB->execute($sql, array(1, 1));
+    $DB->execute($sql, [1, 1]);
 
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
@@ -293,7 +290,7 @@ function create_extra_fkeys($keys, $fhkeys) {
 }
 
 function find_key_for_table($tablename, $keys) {
-    $foreignkeys = array();
+    $foreignkeys = [];
     foreach ($keys as $key) {
         $keyname = get_field($key, "NAME");
         $keytablename = (explode("_erd_", $keyname)[0]);
@@ -313,7 +310,7 @@ function find_key_for_table($tablename, $keys) {
 
 function get_morekeys() {
     $fkeys = fopen('morekeys.xml', 'r') or ("cant open morekeys.xml file");
-    $keys = array();
+    $keys = [];
     if ($fkeys) {
         while (($line = fgets($fkeys)) !== false) {
             // Reject if nothing but white space.
