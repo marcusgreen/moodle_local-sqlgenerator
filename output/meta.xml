@@ -2,6 +2,10 @@
 <schemaMeta xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://schemaspy.org/xsd/6/schemameta.xsd">
     <comments>![Moodle Logo](https://examulator.com/er/icons/Moodle-icon_30.png) The Moodle Database is complex. Normal installation discards Primary/Foreign Keys and field comments. These diagrams restore that data</comments>
     <tables>
+        <table name="assign">
+            <column name="activity" comments="Actions required to complete assignment, shown on submission page" type="LONGTEXT">
+            </column>
+        </table>
         <table name="adminpresets" comments="named sets of site wide configurations e.g. enable/disable features https://www.youtube.com/watch?v=CyNOhbJ76fY"/>
         <table name="user" comments="One record for each person, custom profile fields can be added via /user/profile/index.php for sample reports see https://docs.moodle.org/en/ad-hoc_contributed_reports#USER_and_ENROLMENT_Reports">
             <column name="password" comments="stored as a hash, for authentication the password is hashed and compared with this"/>
