@@ -35,15 +35,28 @@ function xmldb_local_sqlgenerator_install() {
         "$codemods/mysql_sql_generator.php"    => $CFG->dirroot . '/lib/ddl/mysql_sql_generator.php',
     ];
 
+    $failed = [];
     foreach ($links as $target => $link) {
         if (is_link($link)) {
             unlink($link);
         } else if (is_file($link)) {
-            rename($link, $link . '.original');
+            if (!rename($link, $link . '.original')) {
+                $failed[] = $link;
+                continue;
+            }
         }
         if (!symlink($target, $link)) {
-            throw new moodle_exception('cannotsymlink', 'local_sqlgenerator', '', $link);
+            $failed[] = $link;
         }
+    }
+
+    if (!empty($failed)) {
+        $script = $CFG->dirroot . '/local/sqlgenerator/cli/create_symlinks.sh';
+        debugging(
+            'local_sqlgenerator: symlinks could not be created automatically (permission denied). ' .
+            'Run as root or the file owner: ' . $script,
+            DEBUG_NORMAL
+        );
     }
 
     return true;
