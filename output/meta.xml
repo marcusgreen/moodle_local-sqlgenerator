@@ -24,9 +24,6 @@
             <column name="assessed" comments="Rating aggregate type can be: average, count, maximum, minimum, sum. As integers"/>
         </table>
         <table name="glossary" comments="">
-            <column name="displayformat" type="text">
-                <foreignKey table="glossary_formats" column="name" />
-            </column>
         </table>
         <table name="files" comments="description of files, content is stored in sha1 file pool meaning no duplicate storage https://docs.moodle.org/en/ad-hoc_contributed_reports#List_course_resources_accumulative_file_size_and_count">
         </table>
@@ -43,16 +40,10 @@
             </column>
         </table>
         <table name="assignfeedback_editpdf_queue" comments="">
-            <column name="submissionid" type="int">
-                <foreignKey table="assign_submission" column="id" />
-            </column>
         </table>
         <table name="assign" comments="This table saves information about an instance of mod_assign in a course. For sample reports see https://docs.moodle.org/401/en/ad-hoc_contributed_reports#Assignment_Activity">
         </table>
         <table name="repository_instance_config" comments="">
-            <column name="instanceid" type="int">
-                <foreignKey table="repository_instances" column="id" />
-            </column>
         </table>
         <table name="question">
             <column name="parent" comments="if bigger than 0 this is a (hidden) subquesiton, used by Cloze" type="BIGINT">
