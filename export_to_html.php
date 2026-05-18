@@ -145,7 +145,7 @@ try {
             $html_content .= "    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM\" crossorigin=\"anonymous\">\n";
             $html_content .= "</head>\n<body>\n";
             $html_content .= "    <div class=\"container mt-5\">\n";
-            $html_content .= "        <p><a href=\"../$table_name.html\">&larr; Back to schema</a></p>\n";
+            $html_content .= "        <p><a href=\"../$display_name.html\">&larr; Back to schema</a></p>\n";
             $html_content .= "        <h1 class=\"mb-4\">$display_name Data</h1>\n";
             $html_content .= "        <table class=\"table table-striped table-hover\">\n        <thead class=\"table-dark\">\n            <tr>\n";
             foreach ($columns as $col) {
