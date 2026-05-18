@@ -82,36 +82,37 @@ try {
     }
     
     foreach ($tables as $table_name) {
-        $result = $conn->query("SELECT * FROM `$table_name`");        
+        $display_name = preg_replace('/^[a-z]+_/', '', $table_name);
+        $result = $conn->query("SELECT * FROM `$table_name`");
         if ($result->num_rows > 0) {
             // Get column names
             $fields = $result->fetch_fields();
             $columns = array_map(function($field) { return $field->name; }, $fields);
-            
+
             // Export to CSV
-            $csv_file = "$output_dir/$table_name.csv";
+            $csv_file = "$output_dir/$display_name.csv";
             $fp = fopen($csv_file, 'w');
             fputcsv($fp, $columns);
             while ($row = $result->fetch_array(MYSQLI_NUM)) {
                 fputcsv($fp, $row);
             }
             fclose($fp);
-            
+
             // Generate HTML
             $html_content = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n";
             $html_content .= "    <meta charset=\"UTF-8\">\n";
             $html_content .= "    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-            $html_content .= "    <title>$table_name Data</title>\n";
+            $html_content .= "    <title>$display_name Data</title>\n";
             $html_content .= "    <link href=\"https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css\" rel=\"stylesheet\" integrity=\"sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM\" crossorigin=\"anonymous\">\n";
             $html_content .= "</head>\n<body>\n";
             $html_content .= "    <div class=\"container mt-5\">\n";
-            $html_content .= "        <h1 class=\"mb-4\">$table_name Data</h1>\n";
+            $html_content .= "        <h1 class=\"mb-4\">$display_name Data</h1>\n";
             $html_content .= "        <table class=\"table table-striped table-hover\">\n        <thead class=\"table-dark\">\n            <tr>\n";
             foreach ($columns as $col) {
                 $html_content .= "                <th>" . htmlspecialchars($col) . "</th>\n";
             }
             $html_content .= "            </tr>\n        </thead>\n        <tbody>\n";
-            
+
             $result = $conn->query("SELECT * FROM `$table_name`"); // Reset result pointer
             while ($row = $result->fetch_array(MYSQLI_NUM)) {
                 $html_content .= "            <tr>\n";
@@ -120,13 +121,13 @@ try {
                 }
                 $html_content .= "            </tr>\n";
             }
-            
+
             $html_content .= "        </tbody>\n    </table>\n    </div>\n</body>\n</html>";
-            
+
             // Save HTML file
-            $html_file = "$output_dir/$table_name.html";
+            $html_file = "$output_dir/$display_name.html";
             file_put_contents($html_file, $html_content);
-            
+
             echo "Exported $table_name to $csv_file and $html_file\n";
         } else {
             echo "No data found in $table_name\n";

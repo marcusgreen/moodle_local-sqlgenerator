@@ -7,7 +7,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CODEMODS="$(dirname "$SCRIPT_DIR")/codemods"
-DIRROOT="$(dirname "$(dirname "$SCRIPT_DIR")")"
+DIRROOT="$(dirname "$(dirname "$(dirname "$SCRIPT_DIR")")")"
 
 declare -A LINKS=(
     ["$CODEMODS/xmldb_field.php"]="$DIRROOT/lib/xmldb/xmldb_field.php"
@@ -15,6 +15,12 @@ declare -A LINKS=(
     ["$CODEMODS/sql_generator.php"]="$DIRROOT/lib/ddl/sql_generator.php"
     ["$CODEMODS/mysql_sql_generator.php"]="$DIRROOT/lib/ddl/mysql_sql_generator.php"
 )
+
+OUTPUT_DIR="$(dirname "$SCRIPT_DIR")/output"
+mkdir -p "$OUTPUT_DIR"
+chown marcus:www-data "$OUTPUT_DIR"
+chmod 775 "$OUTPUT_DIR"
+echo "Output dir: $OUTPUT_DIR"
 
 ERRORS=0
 

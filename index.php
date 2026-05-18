@@ -82,6 +82,8 @@ if ($data = $mform->get_data()) {
             $sqlfile = $path[1];
         }
         generate_sql("placeholdercomponent", __DIR__ . "/output/" . $sqlfile . ".sql", $pluginfolder, $data);
+        $erd_url = (new moodle_url('/local/sqlgenerator/output/' . $data->targetdatabase . '/index.html'))->out(false);
+        print '<br/>ERD output: <a href="' . $erd_url . '" target="_blank">' . $erd_url . '</a> (available after schemaspy run)';
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -210,6 +212,12 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
         $sqlarr = $dbmanager->generator->getCreateStructureSQL($xmldb_structure);
         foreach ($sqlarr as $sql) {
             $sql = str_replace("CREATE TABLE", ";" . PHP_EOL . "CREATE TABLE", $sql);
+            // Composite FKs referencing (id, ...) are invalid in MySQL — reduce to single-field.
+            $sql = preg_replace_callback(
+                '/FOREIGN KEY \((\w+),\s*\w+\)\s+REFERENCES\s+(\w+)\s+\((\w+),\s*\w+\)/',
+                fn($m) => "FOREIGN KEY ({$m[1]}) REFERENCES {$m[2]} ({$m[3]})",
+                $sql
+            );
             $engineloc = strpos($sql, 'ENGINE = InnoDB');
             $uptoengine = substr($sql, 0, $engineloc);
             $lastparenloc = strrpos($uptoengine, ")");
