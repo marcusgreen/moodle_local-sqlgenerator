@@ -12,25 +12,40 @@ $db_config = [
 function show_help() {
     echo <<<EOT
 
-Usage: php export_to_html.php [options]
+Export the rows of every table in a MySQL/MariaDB database to HTML pages, and
+add a "View table data" link to each matching SchemaSpy table page.
 
-Options:
-  --help            Display this help message and exit
-  --username, -u    Specify the database username
-  --password, -p    Specify the database password
-  --db, -d          Specify the database name
-  --properties, -c  Path to schemaspy.properties (default: the file index.php
-                    writes to \$CFG->dataroot/local_sqlgenerator/, then
-                    output/schemaspy.properties)
-  --prefix          Table prefix to strip from names, e.g. mdl_ (default:
-                    \$CFG->prefix, or mdl_ when --properties is given).
-                    Bare --prefix means none. Tables are only stripped when
-                    they start with this exact prefix.
+Usage:
+  php export_to_html.php -u <user> -p <password> -d <database> [options]
 
-Description:
-  This script connects to a MySQL database, exports data from all tables,
-  and generates HTML files in the SchemaSpy tables directory to display
-  the data in a tabular format with links back to the schema page.
+Required:
+  -u, --username=<user>       Database username
+  -p, --password=<password>   Database password
+  -d, --db=<database>         Database to export (the ERD database, not
+                              the live Moodle one)
+
+Optional:
+  -c, --properties=<file>     schemaspy.properties to read the SchemaSpy
+                              output name (schemaspy.o) from.
+                              Default: \$CFG->dataroot/local_sqlgenerator/
+                              schemaspy.properties, then
+                              output/schemaspy.properties.
+                              Giving this skips loading Moodle.
+      --prefix=<prefix>       Strip this exact table prefix from table names
+                              before matching SchemaSpy pages, e.g. mdl_.
+                              Default: \$CFG->prefix, or mdl_ with -c.
+      --no-prefix             Do not strip any prefix
+  -h, --help                  Show this help and exit
+
+Output:
+  Data pages go to output/<schemaspy.o>_erd/tables/data/<table>_data.html
+  (or output/<schemaspy.o>/tables/data/). If no properties file is found,
+  <schemaspy.o> is the database name.
+
+Examples:
+  php export_to_html.php -u moodle -p secret -d mdl53er_erd
+  php export_to_html.php -u moodle -p secret -d mdl53er_erd \\
+      -c output/schemaspy.properties --no-prefix
 
 
 EOT;
@@ -38,13 +53,49 @@ EOT;
     exit(0);
 }
 
+function usage_error(string $message): void {
+    fwrite(STDERR, "Error: $message\nRun with --help for usage.\n");
+    exit(2);
+}
+
 // Parse command line arguments
-$options = getopt('u:p:d:c:', ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix::']);
+$short_opts = 'hu:p:d:c:';
+$long_opts = ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix:', 'no-prefix'];
+$options = getopt($short_opts, $long_opts, $rest_index);
+
+// getopt() silently ignores unknown switches, so check them here.
+$takes_value = ['u', 'p', 'd', 'c', 'username', 'password', 'db', 'properties', 'prefix'];
+$known = array_merge($takes_value, ['h', 'help', 'no-prefix']);
+$args = array_slice($argv, 1, $rest_index - 1);
+for ($i = 0; $i < count($args); $i++) {
+    $arg = $args[$i];
+    if (strpos($arg, '--') === 0) {
+        [$name] = explode('=', substr($arg, 2), 2);
+        $attached = strpos($arg, '=') !== false;
+    } else {
+        $name = substr($arg, 1, 1);
+        $attached = strlen($arg) > 2;
+    }
+    if (!in_array($name, $known, true)) {
+        usage_error("unknown option $arg");
+    }
+    if (!$attached && in_array($name, $takes_value, true)) {
+        $i++; // Skip the option's value, which may itself start with '-'.
+    }
+}
+if ($rest_index < count($argv)) {
+    usage_error('unexpected argument ' . $argv[$rest_index]);
+}
+
 $properties_file = null;
 $table_prefix = null;
 
 foreach ($options as $opt => $value) {
+    if (is_array($value)) {
+        usage_error("option -$opt given more than once");
+    }
     switch ($opt) {
+        case 'h':
         case 'help':
             show_help();
             break;
@@ -65,15 +116,27 @@ foreach ($options as $opt => $value) {
             $properties_file = $value;
             break;
         case 'prefix':
-            $table_prefix = $value === false ? '' : $value;
+            $table_prefix = $value;
+            break;
+        case 'no-prefix':
+            $table_prefix = '';
             break;
     }
 }
 
+if (isset($options['prefix']) && isset($options['no-prefix'])) {
+    usage_error('--prefix and --no-prefix cannot be used together');
+}
+
 // Validate required parameters
-if (empty($db_config['user']) || empty($db_config['password']) || empty($db_config['database'])) {
-    echo 'Username, password, and database name are required. Use --help for usage information'.PHP_EOL;
-    exit(2);
+$missing = [];
+foreach (['user' => '-u/--username', 'password' => '-p/--password', 'database' => '-d/--db'] as $key => $switch) {
+    if ($db_config[$key] === '') {
+        $missing[] = $switch;
+    }
+}
+if ($missing) {
+    usage_error('missing required option(s): ' . implode(', ', $missing));
 }
 
 // Parse schemaspy.properties to find the ERD tables directory
