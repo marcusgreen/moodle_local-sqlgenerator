@@ -157,7 +157,7 @@ function parse_schemaspy_properties(string $file): array {
 // bootstrapped (to read dataroot) when no path was given on the command line.
 if ($properties_file !== null) {
     if (!is_readable($properties_file)) {
-        echo "Error: properties file not readable: $properties_file\n";
+        fwrite(STDERR, "Error: properties file not readable: $properties_file\n");
         exit(1);
     }
     $schemaspy_props_file = $properties_file;
@@ -192,7 +192,7 @@ if (is_dir($candidate)) {
 }
 
 if (!$schemaspy_tables_dir) {
-    echo "Error: could not locate SchemaSpy tables directory. Cannot write output.\n";
+    fwrite(STDERR, "Error: could not locate SchemaSpy tables directory. Cannot write output.\n");
     exit(1);
 }
 
@@ -285,5 +285,6 @@ try {
 
     $conn->close();
 } catch (Exception $e) {
-    echo 'Error: ' . $e->getMessage() . "\n";
+    fwrite(STDERR, 'Error: ' . $e->getMessage() . "\n");
+    exit(1);
 }
