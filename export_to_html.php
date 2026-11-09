@@ -12,13 +12,20 @@ $db_config = [
 function show_help() {
     echo <<<EOT
 
-Usage: php mysql_export_to_html.php [options]
+Usage: php export_to_html.php [options]
 
 Options:
-  --help          Display this help message and exit
-  --username, -u  Specify the database username
-  --password, -p  Specify the database password
-  --db, -d        Specify the database name
+  --help            Display this help message and exit
+  --username, -u    Specify the database username
+  --password, -p    Specify the database password
+  --db, -d          Specify the database name
+  --properties, -c  Path to schemaspy.properties (default: the file index.php
+                    writes to \$CFG->dataroot/local_sqlgenerator/, then
+                    output/schemaspy.properties)
+  --prefix          Table prefix to strip from names, e.g. mdl_ (default:
+                    \$CFG->prefix, or mdl_ when --properties is given).
+                    Bare --prefix means none. Tables are only stripped when
+                    they start with this exact prefix.
 
 Description:
   This script connects to a MySQL database, exports data from all tables,
@@ -32,7 +39,9 @@ EOT;
 }
 
 // Parse command line arguments
-$options = getopt('u:p:d:', ['help', 'username:', 'password:', 'db:']);
+$options = getopt('u:p:d:c:', ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix::']);
+$properties_file = null;
+$table_prefix = null;
 
 foreach ($options as $opt => $value) {
     switch ($opt) {
@@ -50,6 +59,13 @@ foreach ($options as $opt => $value) {
         case 'd':
         case 'db':
             $db_config['database'] = $value;
+            break;
+        case 'c':
+        case 'properties':
+            $properties_file = $value;
+            break;
+        case 'prefix':
+            $table_prefix = $value === false ? '' : $value;
             break;
     }
 }
@@ -74,19 +90,42 @@ function parse_schemaspy_properties(string $file): array {
     return $props;
 }
 
-$schemaspy_props_file = __DIR__ . '/output/schemaspy.properties';
-$schemaspy_tables_dir = null;
-if (file_exists($schemaspy_props_file)) {
-    $props = parse_schemaspy_properties($schemaspy_props_file);
-    $output_name = $props['schemaspy.o'] ?? null;
-    if ($output_name) {
-        $candidate = __DIR__ . '/output/' . $output_name . '_erd/tables';
-        if (is_dir($candidate)) {
-            $schemaspy_tables_dir = $candidate;
-        } elseif (is_dir(__DIR__ . '/output/' . $output_name . '/tables')) {
-            $schemaspy_tables_dir = __DIR__ . '/output/' . $output_name . '/tables';
+// index.php writes schemaspy.properties to $CFG->dataroot/local_sqlgenerator/. Moodle is only
+// bootstrapped (to read dataroot) when no path was given on the command line.
+if ($properties_file !== null) {
+    if (!is_readable($properties_file)) {
+        echo "Error: properties file not readable: $properties_file\n";
+        exit(1);
+    }
+    $schemaspy_props_file = $properties_file;
+} else {
+    define('CLI_SCRIPT', true);
+    require(__DIR__ . '/../../config.php');
+    $schemaspy_props_file = null;
+    foreach ([$CFG->dataroot . '/local_sqlgenerator/schemaspy.properties',
+              __DIR__ . '/output/schemaspy.properties'] as $candidate_props) {
+        if (is_readable($candidate_props)) {
+            $schemaspy_props_file = $candidate_props;
+            break;
         }
     }
+    $table_prefix = $table_prefix ?? $CFG->prefix;
+}
+$table_prefix = $table_prefix ?? 'mdl_';
+
+$schemaspy_tables_dir = null;
+// schemaspy.o defaults to the database name if no properties file is found.
+$output_name = $db_config['database'];
+if ($schemaspy_props_file !== null) {
+    echo "Using properties file: $schemaspy_props_file\n";
+    $props = parse_schemaspy_properties($schemaspy_props_file);
+    $output_name = $props['schemaspy.o'] ?? $output_name;
+}
+$candidate = __DIR__ . '/output/' . $output_name . '_erd/tables';
+if (is_dir($candidate)) {
+    $schemaspy_tables_dir = $candidate;
+} elseif (is_dir(__DIR__ . '/output/' . $output_name . '/tables')) {
+    $schemaspy_tables_dir = __DIR__ . '/output/' . $output_name . '/tables';
 }
 
 if (!$schemaspy_tables_dir) {
@@ -129,7 +168,10 @@ try {
     }
 
     foreach ($tables as $table_name) {
-        $display_name = preg_replace('/^[a-z]+_/', '', $table_name);
+        $display_name = $table_name;
+        if ($table_prefix !== '' && strpos($table_name, $table_prefix) === 0) {
+            $display_name = substr($table_name, strlen($table_prefix));
+        }
         $result = $conn->query("SELECT * FROM `$table_name`");
         if ($result->num_rows > 0) {
             $fields = $result->fetch_fields();
