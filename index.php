@@ -81,9 +81,13 @@ if ($data = $mform->get_data()) {
             $path = explode('/', $data->pluginfolder);
             $sqlfile = $path[1];
         }
-        generate_sql("placeholdercomponent", __DIR__ . "/output/" . $sqlfile . ".sql", $pluginfolder, $data);
+        generate_sql("placeholdercomponent", local_sqlgenerator_output_dir() . "/" . $sqlfile . ".sql", $pluginfolder, $data);
         $erd_url = (new moodle_url('/local/sqlgenerator/output/' . $data->targetdatabase . '/index.html'))->out(false);
         print '<br/>ERD output: <a href="' . $erd_url . '" target="_blank">' . $erd_url . '</a> (available after schemaspy run)';
+        foreach ([$sqlfile . '.sql', 'add_foreign_keys.sql', 'schemaspy.properties'] as $downloadfile) {
+            $downloadurl = new moodle_url('/local/sqlgenerator/download.php', ['file' => $downloadfile]);
+            print '<br/>' . html_writer::link($downloadurl, get_string('download', 'local_sqlgenerator', $downloadfile));
+        }
     }
     if (isset($data->writexml)) {
         write_xml();
@@ -95,8 +99,9 @@ if ($data = $mform->get_data()) {
 function write_xml(array $tablestowrite = []) {
     global $DB, $CFG;
     $plugins = getDirectoryTree();
-    $fh = fopen(__DIR__ . '/output/table_xml.html', 'w') or die("can't open file table_xml.html");
-    $findex = fopen(__DIR__ . "/output/pluginxml/index.htm", "w");
+    $pluginxmldir = local_sqlgenerator_output_dir('pluginxml');
+    $fh = fopen(local_sqlgenerator_output_dir() . '/table_xml.html', 'w') or die("can't open file table_xml.html");
+    $findex = fopen($pluginxmldir . "/index.htm", "w");
     fwrite($findex, "<h3>dbmxl files for each plugin extracted from the install folder</h3>");
     fwrite($fh, "<pre>");
     foreach ($plugins as $plugin) {
@@ -110,7 +115,7 @@ function write_xml(array $tablestowrite = []) {
         $folder = str_replace("/", "_", $folder);
         $folder = $folder . ".html";
         echo "creating:" . $folder . "</br>";
-        $pluginxml_file = fopen(__DIR__ . "/output/pluginxml/" . $folder, "w");
+        $pluginxml_file = fopen($pluginxmldir . "/" . $folder, "w");
         fwrite($findex, "<a href=" . $folder . ">" . $folder . "</a><br/>");
         fwrite($pluginxml_file, $contents . "</pre>");
         fclose($pluginxml_file);
@@ -195,7 +200,7 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
     fwrite($fh, $sql. PHP_EOL);
 
     $keys = get_morekeys();
-    $fhkeys = fopen(__DIR__ . '/output/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
+    $fhkeys = fopen(local_sqlgenerator_output_dir() . '/add_foreign_keys.sql', 'w') or die("can't open file add_foreign_keys.sql");
     fwrite($fhkeys, "/* Moodle version " . $CFG->version . " Release " . $CFG->release . " Add Foreign Keys code */" . PHP_EOL);
     $keys = get_morekeys();
     create_extra_fkeys($keys, $fhkeys);
@@ -237,11 +242,11 @@ function generate_sql($component, $outputfile, $pluginfolder, $fromform) {
     }
     schemaspy_properties($fromform);
     fclose($fh);
-    $msg = 'Complete:File '.$CFG->dataroot.DIRECTORY_SEPARATOR.$outputfile.' written';
+    $msg = 'Complete:File ' . $outputfile . ' written';
     \core\notification::add($msg, \core\notification::SUCCESS);
 }
 function schemaspy_properties($fromform){
-    $fh = fopen(__DIR__ . '/output/schemaspy.properties', 'w') or die("can't open file schemaspy.properties");
+    $fh = fopen(local_sqlgenerator_output_dir() . '/schemaspy.properties', 'w') or die("can't open file schemaspy.properties");
     // Change details like u for username and p for password to suit your setup.
     $properties =  <<<EOT
         # type of database always mysql for this tool

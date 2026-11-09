@@ -26,6 +26,23 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir . '/formslib.php');
 
 /**
+ * Directory for files generated from the web interface.
+ *
+ * Uses dataroot because the plugin folder is usually not writable by the web server user.
+ *
+ * @param string $subdir optional subdirectory to create within the output directory
+ * @return string absolute path to the directory, created if necessary
+ */
+function local_sqlgenerator_output_dir(string $subdir = ''): string {
+    global $CFG;
+    $dir = $CFG->dataroot . '/local_sqlgenerator';
+    if ($subdir !== '') {
+        $dir .= '/' . $subdir;
+    }
+    return make_writable_directory($dir);
+}
+
+/**
  * Interactive form for the SQL Generator.
  *
  * @copyright  2014 Marcus Green

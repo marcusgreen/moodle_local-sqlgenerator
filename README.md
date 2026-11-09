@@ -15,13 +15,20 @@ and so may have a significant performance impact (though probably only for a min
 reason for not running on a live system with real users.
 
 You may need to increase the max_execution_time  value in your php.ini. On a machine with 16GB of RAM and an i7 chip I put the value up to 360
-The SQL code is called component.sql and  output to the same folder as the code (i.e. moodle\local\sqlgenerator\
+Files generated from the web page (create_tables_moodle.sql, add_foreign_keys.sql, schemaspy.properties,
+table_xml.html and pluginxml/) are written to $CFG->dataroot/local_sqlgenerator/, because the plugin
+folder is usually not writable by the web server user. The exact path is shown after generation.
+
+To run SchemaSpy, change to the output folder and point it at the generated properties file, e.g.
+
+cd local/sqlgenerator/output
+java -jar schemaspy-6.1.0.jar -configFile /path/to/moodledata/local_sqlgenerator/schemaspy.properties -imageformat=svg -meta=meta.xml -template=./templates/
 To see diagrams generated from the output of this plugin see here
 http://www.examulator.com/er/
 
 To create the database that is used for the diagrams use this command line
 
-mysql  -umoodle -p -f < create_tables_moodle.sql
+mysql  -umoodle -p -f < /path/to/moodledata/local_sqlgenerator/create_tables_moodle.sql
 
 The -f parameter is to force the process to continue if errors occur. There is at least one error triggered by an anomoly in the primary/foreign keys
 

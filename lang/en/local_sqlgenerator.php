@@ -24,6 +24,7 @@
  */
 
 $string['component']  = 'Component';
+$string['download']   = 'Download {$a}';
 $string['generate']   = 'Generate "create table" sql file';
 $string['pluginname'] = 'SQL Generator';
 $string['pluginfolder']   = 'Plugin folder';
