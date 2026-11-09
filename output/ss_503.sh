@@ -1,0 +1,1 @@
+java -jar schemaspy-6.1.0.jar -noexportedkeys -v -imageformat=svg -meta=meta.xml -desc='Moodle 5.3 database schema with additional foreign key relationships see http://www.examulator.com/er' -template=./templates/
