@@ -1,0 +1,9 @@
+# Generated SchemaSpy output and archives
+output/*_erd/
+output/*.zip
+
+# Generated SQL
+output/create_tables_moodle.sql
+
+# Contains database credentials
+output/schemaspy.properties
