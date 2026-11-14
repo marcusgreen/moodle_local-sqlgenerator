@@ -8,12 +8,53 @@ $db_config = [
     'database' => ''
 ];
 
+// Private data rules. Table names are matched without the prefix, column and
+// setting names case-insensitively.
+
+// Tables never exported because their rows are credentials, keys or sessions.
+const EXCLUDED_TABLES = '/^(sessions|mnet_session|scorm_aicc_session|user_private_key|user_password_(resets|history)'
+    . '|user_devices|message_airnotifier_devices|messageinbound_datakeys|tool_mfa.*|.*token.*|.*secret.*'
+    . '|.*auth_codes|.*_linked_login|.*share_key|oauth2_system_account|badge_backpack_oauth2)$/';
+
+// Columns redacted in every table: names, contact details, credentials, keys and IP addresses.
+// logstore_standard_log.other can hold the username of a failed login, and
+// task_adhoc.customdata the IP address and browser of a login.
+const REDACTED_COLUMNS = '/^(username|password|passwd|secret|sesskey|sid|sessdata|.*token.*|.*secret.*|.*_key'
+    . '|firstname|lastname|middlename|alternatename|firstnamephonetic|lastnamephonetic|author'
+    . '|email|phone1|phone2|address|institution|department|ip|firstip|lastip|ip_address|hostname|other|customdata)$/i';
+
+// Further columns redacted only in these tables.
+const REDACTED_TABLE_COLUMNS = [
+    'user' => ['idnumber', 'city', 'description', 'imagealt'],
+    'repository_instances' => ['name'],
+];
+
+// Name/value tables: the value columns are redacted when the setting name looks sensitive.
+const NAME_VALUE_TABLES = [
+    'config' => ['name', ['value']],
+    'config_plugins' => ['name', ['value']],
+    'config_log' => ['name', ['value', 'oldvalue']],
+    'user_preferences' => ['name', ['value']],
+    'adminpresets_it' => ['name', ['value']],
+    'course_format_options' => ['name', ['value']],
+];
+const SENSITIVE_SETTING = '/pass|secret|token|key|salt|hash|mail|address|identifier|user$|username|phone|openssl|cert/i';
+
+const REDACTED = '[redacted]';
+
 // Function to display help message
 function show_help() {
     echo <<<EOT
 
-Export the rows of every table in a MySQL/MariaDB database to HTML pages, and
-add a "View table data" link to each matching SchemaSpy table page.
+Export the rows of every non-empty table in a MySQL/MariaDB database to HTML
+pages, and add a "View table data" link to each matching SchemaSpy table page.
+Empty tables are skipped.
+
+Private data is left out: tables of credentials, keys and sessions are not
+exported, and columns such as username, password, email, names, tokens and
+IP addresses show [redacted]. Settings whose names look secret (passwords,
+keys, tokens, email addresses) are redacted in config and similar tables.
+The rules are at the top of this script.
 
 Usage:
   php export_to_html.php -u <user> -p <password> -d <database> [options]
@@ -21,8 +62,9 @@ Usage:
 Required:
   -u, --username=<user>       Database username
   -p, --password=<password>   Database password
-  -d, --db=<database>         Database to export (the ERD database, not
-                              the live Moodle one)
+  -d, --db=<database>         Database to read rows from, usually the
+                              Moodle site database (the ERD database
+                              holds no rows)
 
 Optional:
   -c, --properties=<file>     schemaspy.properties to read the SchemaSpy
@@ -35,6 +77,10 @@ Optional:
                               before matching SchemaSpy pages, e.g. mdl_.
                               Default: \$CFG->prefix, or mdl_ with -c.
       --no-prefix             Do not strip any prefix
+  -t, --tables=<list>         Export only these tables, comma separated.
+                              Names may be given with or without the
+                              prefix, e.g. course,course_modules.
+                              Default: all tables.
   -h, --help                  Show this help and exit
 
 Output:
@@ -46,6 +92,8 @@ Examples:
   php export_to_html.php -u moodle -p secret -d mdl53er_erd
   php export_to_html.php -u moodle -p secret -d mdl53er_erd \\
       -c output/schemaspy.properties --no-prefix
+  php export_to_html.php -u moodle -p secret -d mdl53er_erd \\
+      -t course,course_sections,course_modules
 
 
 EOT;
@@ -59,12 +107,12 @@ function usage_error(string $message): void {
 }
 
 // Parse command line arguments
-$short_opts = 'hu:p:d:c:';
-$long_opts = ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix:', 'no-prefix'];
+$short_opts = 'hu:p:d:c:t:';
+$long_opts = ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix:', 'no-prefix', 'tables:'];
 $options = getopt($short_opts, $long_opts, $rest_index);
 
 // getopt() silently ignores unknown switches, so check them here.
-$takes_value = ['u', 'p', 'd', 'c', 'username', 'password', 'db', 'properties', 'prefix'];
+$takes_value = ['u', 'p', 'd', 'c', 'username', 'password', 'db', 'properties', 'prefix', 't', 'tables'];
 $known = array_merge($takes_value, ['h', 'help', 'no-prefix']);
 $args = array_slice($argv, 1, $rest_index - 1);
 for ($i = 0; $i < count($args); $i++) {
@@ -89,6 +137,7 @@ if ($rest_index < count($argv)) {
 
 $properties_file = null;
 $table_prefix = null;
+$only_tables = null;
 
 foreach ($options as $opt => $value) {
     if (is_array($value)) {
@@ -120,6 +169,13 @@ foreach ($options as $opt => $value) {
             break;
         case 'no-prefix':
             $table_prefix = '';
+            break;
+        case 't':
+        case 'tables':
+            $only_tables = array_values(array_unique(array_filter(array_map('trim', explode(',', $value)), 'strlen')));
+            if (!$only_tables) {
+                usage_error('--tables needs at least one table name');
+            }
             break;
     }
 }
@@ -204,6 +260,14 @@ if (!is_dir($data_dir)) {
 echo "SchemaSpy tables dir: $schemaspy_tables_dir\n";
 echo "Data output dir: $data_dir\n";
 
+function remove_data_link(string $html_file): void {
+    $content = file_get_contents($html_file);
+    $updated = preg_replace('/<p data-export-link="1">.*?<\/p>/', '', $content);
+    if ($updated !== $content) {
+        file_put_contents($html_file, $updated);
+    }
+}
+
 function inject_data_link(string $html_file, string $display_name, string $data_html_rel_path): void {
     $content = file_get_contents($html_file);
     if (strpos($content, 'data-export-link') !== false) {
@@ -230,18 +294,76 @@ try {
         $tables[] = $row[0];
     }
 
+    if ($only_tables !== null) {
+        // Match each requested name against the full table name or the name without the prefix.
+        $selected = [];
+        $unknown = [];
+        foreach ($only_tables as $wanted) {
+            $match = null;
+            foreach ($tables as $table_name) {
+                if ($table_name === $wanted || $table_name === $table_prefix . $wanted) {
+                    $match = $table_name;
+                    break;
+                }
+            }
+            if ($match === null) {
+                $unknown[] = $wanted;
+            } else {
+                $selected[] = $match;
+            }
+        }
+        if ($unknown) {
+            throw new Exception('table(s) not found in ' . $db_config['database'] . ': ' . implode(', ', $unknown));
+        }
+        $tables = array_values(array_unique($selected));
+    }
+
+    $empty_tables = 0;
+    $excluded_tables = [];
     foreach ($tables as $table_name) {
         $display_name = $table_name;
         if ($table_prefix !== '' && strpos($table_name, $table_prefix) === 0) {
             $display_name = substr($table_name, strlen($table_prefix));
         }
+        $schema_file = "$display_name.html";
+        $data_file   = "{$display_name}_data.html";
+        $schemaspy_html = "$schemaspy_tables_dir/$schema_file";
+
+        // Remove output from an earlier run, so a table that is now empty or
+        // excluded does not keep a stale page.
+        if (file_exists("$data_dir/$data_file")) {
+            unlink("$data_dir/$data_file");
+        }
+        if (file_exists($schemaspy_html)) {
+            remove_data_link($schemaspy_html);
+        }
+
+        if (preg_match(EXCLUDED_TABLES, $display_name)) {
+            $excluded_tables[] = $table_name;
+            continue;
+        }
+
         $result = $conn->query("SELECT * FROM `$table_name`");
         if ($result->num_rows > 0) {
             $fields = $result->fetch_fields();
             $columns = array_map(function($field) { return $field->name; }, $fields);
 
-            $schema_file = "$display_name.html";
-            $data_file   = "{$display_name}_data.html";
+            // Work out which column indexes are always redacted, and for
+            // name/value tables which hold the name and the values.
+            $table_columns = array_map('strtolower', REDACTED_TABLE_COLUMNS[$display_name] ?? []);
+            $redacted_cols = [];
+            foreach ($columns as $i => $col) {
+                if (preg_match(REDACTED_COLUMNS, $col) || in_array(strtolower($col), $table_columns, true)) {
+                    $redacted_cols[$i] = true;
+                }
+            }
+            $name_col = null;
+            $value_cols = [];
+            if (isset(NAME_VALUE_TABLES[$display_name])) {
+                [$name_column, $value_columns] = NAME_VALUE_TABLES[$display_name];
+                $name_col = array_search($name_column, $columns, true);
+                $value_cols = array_flip(array_keys(array_intersect($columns, $value_columns)));
+            }
 
             $html_content  = "<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n";
             $html_content .= "    <meta charset=\"UTF-8\">\n";
@@ -260,8 +382,14 @@ try {
 
             $result = $conn->query("SELECT * FROM `$table_name`");
             while ($row = $result->fetch_array(MYSQLI_NUM)) {
+                $sensitive_setting = $name_col !== false && $name_col !== null
+                    && preg_match(SENSITIVE_SETTING, $row[$name_col] ?? '');
                 $html_content .= "            <tr>\n";
-                foreach ($row as $cell) {
+                foreach ($row as $i => $cell) {
+                    $redact = isset($redacted_cols[$i]) || ($sensitive_setting && isset($value_cols[$i]));
+                    if ($redact && $cell !== null && $cell !== '') {
+                        $cell = REDACTED;
+                    }
                     $html_content .= "                <td>" . htmlspecialchars($cell ?? '') . "</td>\n";
                 }
                 $html_content .= "            </tr>\n";
@@ -273,14 +401,19 @@ try {
             file_put_contents($out_path, $html_content);
             echo "Exported $table_name -> $out_path\n";
 
-            $schemaspy_html = "$schemaspy_tables_dir/$schema_file";
             if (file_exists($schemaspy_html)) {
                 inject_data_link($schemaspy_html, $display_name, "data/$data_file");
                 echo "  -> Updated $schema_file with data link\n";
             }
         } else {
-            echo "No data found in $table_name\n";
+            $empty_tables++;
         }
+    }
+
+    echo "Skipped $empty_tables empty table(s)\n";
+    if ($excluded_tables) {
+        echo 'Skipped ' . count($excluded_tables) . ' table(s) that hold credentials or sessions: '
+            . implode(', ', $excluded_tables) . "\n";
     }
 
     $conn->close();
