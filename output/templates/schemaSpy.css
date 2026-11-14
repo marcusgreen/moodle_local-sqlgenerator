@@ -160,3 +160,14 @@ td.diagram  {
 .dataTables_filter .input-sm {
   padding-left: 13px;
 }
+/* AdminLTE gives .callout-info an aqua background with white text (both
+   !important), which is hard to read. Use a light background instead. */
+.callout.callout-info {
+  background-color: #f4f8fa !important;
+  color: #333 !important;
+}
+
+.callout.callout-info a,
+.callout.callout-info a:hover {
+  color: #0073b7;
+}
