@@ -42,6 +42,9 @@ const SENSITIVE_SETTING = '/pass|secret|token|key|salt|hash|mail|address|identif
 
 const REDACTED = '[redacted]';
 
+// The site's host names are replaced with this in every exported value so the pages do not reveal them.
+const SITE_HOST_REPLACEMENT = 'localhost';
+
 // Function to display help message
 function show_help() {
     echo <<<EOT
@@ -54,6 +57,7 @@ Private data is left out: tables of credentials, keys and sessions are not
 exported, and columns such as username, password, email, names, tokens and
 IP addresses show [redacted]. Settings whose names look secret (passwords,
 keys, tokens, email addresses) are redacted in config and similar tables.
+The site's host names are replaced with localhost in every value.
 The rules are at the top of this script.
 
 Usage:
@@ -77,6 +81,10 @@ Optional:
                               before matching SchemaSpy pages, e.g. mdl_.
                               Default: \$CFG->prefix, or mdl_ with -c.
       --no-prefix             Do not strip any prefix
+      --site-host=<list>      Host names to replace with localhost, comma
+                              separated. Default: the host of the site's
+                              own mnet_host record in the database, and
+                              the host of \$CFG->wwwroot unless -c is given.
   -t, --tables=<list>         Export only these tables, comma separated.
                               Names may be given with or without the
                               prefix, e.g. course,course_modules.
@@ -108,11 +116,11 @@ function usage_error(string $message): void {
 
 // Parse command line arguments
 $short_opts = 'hu:p:d:c:t:';
-$long_opts = ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix:', 'no-prefix', 'tables:'];
+$long_opts = ['help', 'username:', 'password:', 'db:', 'properties:', 'prefix:', 'no-prefix', 'tables:', 'site-host:'];
 $options = getopt($short_opts, $long_opts, $rest_index);
 
 // getopt() silently ignores unknown switches, so check them here.
-$takes_value = ['u', 'p', 'd', 'c', 'username', 'password', 'db', 'properties', 'prefix', 't', 'tables'];
+$takes_value = ['u', 'p', 'd', 'c', 'username', 'password', 'db', 'properties', 'prefix', 't', 'tables', 'site-host'];
 $known = array_merge($takes_value, ['h', 'help', 'no-prefix']);
 $args = array_slice($argv, 1, $rest_index - 1);
 for ($i = 0; $i < count($args); $i++) {
@@ -138,6 +146,8 @@ if ($rest_index < count($argv)) {
 $properties_file = null;
 $table_prefix = null;
 $only_tables = null;
+$site_hosts = null;
+$wwwroot_host = null;
 
 foreach ($options as $opt => $value) {
     if (is_array($value)) {
@@ -175,6 +185,12 @@ foreach ($options as $opt => $value) {
             $only_tables = array_values(array_unique(array_filter(array_map('trim', explode(',', $value)), 'strlen')));
             if (!$only_tables) {
                 usage_error('--tables needs at least one table name');
+            }
+            break;
+        case 'site-host':
+            $site_hosts = array_values(array_unique(array_filter(array_map('trim', explode(',', $value)), 'strlen')));
+            if (!$site_hosts) {
+                usage_error('--site-host needs at least one host name');
             }
             break;
     }
@@ -229,6 +245,7 @@ if ($properties_file !== null) {
         }
     }
     $table_prefix = $table_prefix ?? $CFG->prefix;
+    $wwwroot_host = parse_url($CFG->wwwroot, PHP_URL_HOST);
 }
 $table_prefix = $table_prefix ?? 'mdl_';
 
@@ -281,11 +298,38 @@ function inject_data_link(string $html_file, string $display_name, string $data_
     }
 }
 
+// Read the site's host name from its own mnet_host record, whose id is the
+// mnet_localhost_id setting. Returns null if the tables or record are missing.
+function find_site_host(mysqli $conn, string $prefix): ?string {
+    try {
+        $result = $conn->query("SELECT h.wwwroot FROM `{$prefix}mnet_host` h
+            JOIN `{$prefix}config` c ON c.name = 'mnet_localhost_id' AND h.id = c.value");
+    } catch (mysqli_sql_exception $e) {
+        return null;
+    }
+    $row = $result ? $result->fetch_row() : null;
+    return $row ? (parse_url($row[0], PHP_URL_HOST) ?: null) : null;
+}
+
 try {
     $conn = new mysqli($db_config['host'], $db_config['user'], $db_config['password'], $db_config['database']);
 
     if ($conn->connect_error) {
         throw new Exception('Connection failed: ' . $conn->connect_error);
+    }
+
+    // The mnet_host record keeps the host the site was installed with, which
+    // can differ from $CFG->wwwroot, so both are replaced.
+    if ($site_hosts === null) {
+        $site_hosts = array_unique(array_filter([find_site_host($conn, $table_prefix), $wwwroot_host]));
+    }
+    $site_hosts = array_values(array_filter($site_hosts, function($host) {
+        return strcasecmp($host, SITE_HOST_REPLACEMENT) !== 0;
+    }));
+    if ($site_hosts) {
+        echo 'Replacing site host name(s) ' . implode(', ', $site_hosts) . ' with ' . SITE_HOST_REPLACEMENT . "\n";
+    } else {
+        echo 'No site host name to replace with ' . SITE_HOST_REPLACEMENT . "\n";
     }
 
     $result = $conn->query('SHOW TABLES');
@@ -389,6 +433,8 @@ try {
                     $redact = isset($redacted_cols[$i]) || ($sensitive_setting && isset($value_cols[$i]));
                     if ($redact && $cell !== null && $cell !== '') {
                         $cell = REDACTED;
+                    } elseif ($cell !== null && $site_hosts) {
+                        $cell = str_ireplace($site_hosts, SITE_HOST_REPLACEMENT, $cell);
                     }
                     $html_content .= "                <td>" . htmlspecialchars($cell ?? '') . "</td>\n";
                 }
