@@ -1,7 +1,8 @@
 set -e
 
-# Re-run the data export from ss_503.sh (without SchemaSpy) and check that no
-# site host name is left in the data pages. The hosts checked are the ones
+# Export the Moodle site data to HTML (run by ss_503.sh after SchemaSpy, or
+# alone to redo only the export) and check that no site host name is left in
+# the data pages. The hosts checked are the ones
 # export_to_html.php reports replacing, plus any given as arguments, e.g.
 #   sh check_export_503.sh 192.168.0.235
 # Credentials come from schemaspy.properties, which is not committed.
